@@ -10,6 +10,7 @@ Email::   "Yuri Leikind" <yuri.leikind at gmail dot com>
 
 == Intro
 
+afurmanov> The intention of this fork is to make WiseGrid compatible with Mongoid.
 
 THIS IS AN EARLY ALPHA VERSION OF THE PLUGIN FOR RAILS 3.0.
 BASIC STUFF WORKS, BUT A LOT OF FUNCTIONALITIES ARE BROKEN.
