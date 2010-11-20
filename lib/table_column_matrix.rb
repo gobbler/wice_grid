@@ -41,8 +41,8 @@ module Wice
     end
 
     def init_columns_of_table(model_klass) #:nodoc:
-      self[model_klass] = HashWithIndifferentAccess.new(model_klass.columns.index_by(&:name))
-      @by_table_names[model_klass.table_name] = self[model_klass]
+      self[model_klass] = HashWithIndifferentAccess.new(model_klass.fields)
+      @by_table_names[model_klass.collection_name] = self[model_klass]
       self[model_klass].each_value{|c| c.model_klass = model_klass}
     end
     alias_method :<< , :init_columns_of_table

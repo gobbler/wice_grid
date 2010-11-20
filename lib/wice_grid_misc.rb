@@ -29,7 +29,7 @@ module Wice
 
     def get_string_matching_operators(model)   #:nodoc:
       if defined?(Wice::Defaults::STRING_MATCHING_OPERATORS) && Wice::Defaults::STRING_MATCHING_OPERATORS.is_a?(Hash) &&
-          str_matching_operator = Wice::Defaults::STRING_MATCHING_OPERATORS[model.connection.class.to_s]
+          str_matching_operator =(Wice::Defaults::STRING_MATCHING_OPERATORS[model.connection.class.to_s] rescue nil)
         str_matching_operator
       else
         Wice::Defaults::STRING_MATCHING_OPERATOR
@@ -45,7 +45,7 @@ module Wice
     end
 
     def log(message) #:nodoc:
-      ActiveRecord::Base.logger.info('WiceGrid: ' + message)
+      ActionController::Base.logger.info('WiceGrid: ' + message)
     end
   end
 

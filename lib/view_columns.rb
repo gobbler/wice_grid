@@ -195,7 +195,7 @@ module Wice
   end
 
   class ViewColumnInteger < ViewColumn #:nodoc:
-    @@handled_type[:integer] = self
+    @@handled_type[Integer] = self
 
     def render_filter_internal(params) #:nodoc:
       @contains_a_text_input = true
@@ -226,8 +226,8 @@ module Wice
   end
 
   class ViewColumnFloat < ViewColumnInteger #:nodoc:
-    @@handled_type[:decimal] = self
-    @@handled_type[:float] = self
+    @@handled_type[BigDecimal] = self
+    @@handled_type[Float] = self
   end
 
   class ViewColumnCustomDropdown < ViewColumn #:nodoc:
@@ -287,7 +287,7 @@ module Wice
   end
 
   class ViewColumnBoolean < ViewColumnCustomDropdown #:nodoc:
-    @@handled_type[:boolean] = self
+    @@handled_type[Boolean] = self
     include ActionView::Helpers::FormOptionsHelper
 
     attr_accessor :boolean_filter_true_label, :boolean_filter_false_label
@@ -302,8 +302,8 @@ module Wice
   end
 
   class ViewColumnDatetime < ViewColumn #:nodoc:
-    @@handled_type[:datetime] = self
-    @@handled_type[:timestamp] = self
+    @@handled_type[DateTime] = self
+    @@handled_type[Time] = self
     include ActionView::Helpers::DateHelper
     include Wice::JsCalendarHelpers
 
@@ -381,7 +381,7 @@ module Wice
   end
 
   class ViewColumnDate < ViewColumnDatetime #:nodoc:
-    @@handled_type[:date] = self
+    @@handled_type[Date] = self
 
     @@datetime_chunk_names = %w(year month day)
 
@@ -423,8 +423,8 @@ module Wice
   end
 
   class ViewColumnString < ViewColumn #:nodoc:
-    @@handled_type[:string] = self
-    @@handled_type[:text] = self
+    @@handled_type[String] = self
+#    @@handled_type[:text] = self
 
     attr_accessor :negation, :auto_reloading_input_with_negation_checkbox
 

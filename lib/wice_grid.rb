@@ -24,26 +24,29 @@ ActionController::Base.send(:helper_method, :wice_grid_custom_filter_params)
 
 module Wice
 
-  module Foo
-    def self.included(base)
-      base.extend(ClassMethods)
-    end
+#fix-this - not like AR the Mongoid uses include rather than inheritance, hacked now in the models
+#   module MongoidDocumentExtensions
+#     def self.included(base)
+#       debugger
+#       base.extend(ClassMethods)
+#     end
 
-    module ClassMethods
-      def merge_conditions(*conditions)
-        segments = []
+#     module ClassMethods
+#       def merge_conditions(*conditions)
+#         #         segments = []
 
-        conditions.each do |condition|
-          unless condition.blank?
-            sql = sanitize_sql(condition)
-            segments << sql unless sql.blank?
-          end
-        end
+#         #         conditions.each do |condition|
+#         #           unless condition.blank?
+#         #             sql = sanitize_sql(condition)
+#         #             segments << sql unless sql.blank?
+#         #           end
+#         #         end
 
-        "(#{segments.join(') AND (')})" unless segments.empty?
-      end
-    end
-  end
+#         #         "(#{segments.join(') AND (')})" unless segments.empty?
+#         "" #to implement
+#       end
+#     end
+#   end
 
   class WiceGridRailtie < Rails::Railtie
 
@@ -51,14 +54,14 @@ module Wice
 
       ActionController::Base.send(:include, Wice::Controller)
 
-      ActiveRecord::ConnectionAdapters::Column.send(:include, ::Wice::WiceGridExtentionToActiveRecordColumn)
+      Mongoid::Field.send(:include, ::Wice::WiceGridExtentionToActiveRecordColumn)
 
       Wice::GridRenderer.send(:include, ::WillPaginate::ViewHelpers)
 
       ::ActionView::Base.class_eval { include Wice::GridViewHelper }
 
-      ActiveRecord::Base.send(:include, ::Wice::Foo)
-
+      #ActiveRecord::Base.send(:include, ::Wice::Foo)
+      #Mongoid::Document.send(:include, ::Wice::MongoidDocumentExtensions)
       [ActionView::Helpers::AssetTagHelper,
        ActionView::Helpers::TagHelper,
        ActionView::Helpers::JavaScriptHelper,
@@ -90,11 +93,9 @@ module Wice
     def initialize(klass, controller, opts = {})  #:nodoc:
       @controller = controller
 
-
-      unless klass.kind_of?(Class) && klass.ancestors.index(ActiveRecord::Base)
-        raise WiceGridArgumentError.new("ActiveRecord model class (second argument) must be a Class derived from ActiveRecord::Base")
+      unless klass.kind_of?(Class) && klass.ancestors.index(Mongoid::Document)
+        raise WiceGridArgumentError.new("ActiveRecord model class (second argument) must be a Class derived from Mongoid::Document")
       end
-
       # validate :with_resultset & :with_paginated_resultset
       [:with_resultset, :with_paginated_resultset].each do |callback_symbol|
         unless [NilClass, Symbol, Proc].index(opts[callback_symbol].class)
@@ -173,10 +174,7 @@ module Wice
 
       process_loading_query
       process_params
-
       @ar_options_formed = false
-
-      @method_scoping = @klass.send(:scoped_methods)[-1]
     end
 
     # A block executed from within the plugin to process records of the current page.
@@ -230,8 +228,8 @@ module Wice
       if model_class # this is an included table
         column = @table_column_matrix.get_column_by_model_class_and_column_name(model_class, column_name)
         raise WiceGridArgumentError.new("Column '#{column_name}' is not found in table '#{model_class.table_name}'!") if column.nil?
-        main_table = false
-        table_name = model_class.table_name
+        is_main_table = false
+        table_name = model_class.collection_name
       else
         column = @table_column_matrix.get_column_in_default_model_class_by_column_name(column_name)
         if column.nil?
@@ -239,18 +237,18 @@ module Wice
             "If '#{column_name}' belongs to another table you should declare it in :include or :join when initialising " +
             "the grid, and specify :model_class in column declaration.")
         end
-        main_table = true
-        table_name = @table_column_matrix.default_model_class.table_name
+        is_main_table = true
+        table_name = @table_column_matrix.default_model_class.collection_name
       end
 
       if column
-        conditions, current_parameter_name = column.wg_initialize_request_parameters(@status[:f], main_table, table_alias, custom_filter_active)
+        conditions, current_parameter_name = column.wg_initialize_request_parameters(@status[:f], is_main_table, table_alias, custom_filter_active)
         if @status[:f] && conditions.blank?
           @status[:f].delete(current_parameter_name)
         end
 
         @table_column_matrix.add_condition(column, conditions)
-        [column, table_name , main_table]
+        [column, table_name , is_main_table]
       else
         nil
       end
@@ -301,12 +299,16 @@ module Wice
       @ar_options[:include] = @options[:include]
       @ar_options[:group] = @options[:group]
       @ar_options[:select]  = @options[:select]
+      #fix-this, Criteria must respect options
+      @ar_options = Mongoid::Criteria.new(@klass)
     end
 
     def read  #:nodoc:
       form_ar_options
       with_exclusive_scope do
-        @resultset = self.output_csv? ?  @klass.find(:all, @ar_options) : @klass.paginate(@ar_options)
+#fix-this
+        @resultset = @ar_options
+#        @resultset = self.output_csv? ?  @klass.find(:all, @ar_options) : @klass.paginate(@ar_options)
       end
       invoke_resultset_callbacks
     end
@@ -488,45 +490,41 @@ module Wice
     end
 
     def with_exclusive_scope #:nodoc:
-      if @method_scoping
-        @klass.send(:with_exclusive_scope, @method_scoping) do
-          yield
-        end
-      else
-        yield
-      end
+      yield
     end
 
 
     def add_custom_order_sql(fully_qualified_column_name) #:nodoc:
-      custom_order = if @options[:custom_order].has_key?(fully_qualified_column_name)
-        @options[:custom_order][fully_qualified_column_name]
-      else
-        if view_column = @renderer[fully_qualified_column_name]
-          view_column.custom_order
-        else
-          nil
-        end
-      end
+      return ""
+#fix-this: basically it has to be implemented for Mongoid
+#       custom_order = if @options[:custom_order].has_key?(fully_qualified_column_name)
+#         @options[:custom_order][fully_qualified_column_name]
+#       else
+#         if view_column = @renderer[fully_qualified_column_name]
+#           view_column.custom_order
+#         else
+#           nil
+#         end
+#       end
 
-      if custom_order.blank?
-        ActiveRecord::Base.connection.quote_table_name(fully_qualified_column_name.strip)
-      else
-        if custom_order.is_a? String
-          custom_order.gsub(/\?/, fully_qualified_column_name)
-        elsif custom_order.is_a? Proc
-          custom_order.call(fully_qualified_column_name)
-        else
-          raise WiceGridArgumentError.new("invalid custom order #{custom_order.inspect}")
-        end
-      end
+#       if custom_order.blank?
+#         ActiveRecord::Base.connection.quote_table_name(fully_qualified_column_name.strip)
+#       else
+#         if custom_order.is_a? String
+#           custom_order.gsub(/\?/, fully_qualified_column_name)
+#         elsif custom_order.is_a? Proc
+#           custom_order.call(fully_qualified_column_name)
+#         else
+#           raise WiceGridArgumentError.new("invalid custom order #{custom_order.inspect}")
+#         end
+#       end
     end
 
     def complete_column_name(col_name)  #:nodoc:
       if col_name.index('.') # already has a table name
         col_name
       else # add the default table
-        "#{@klass.table_name}.#{col_name}"
+        "#{@klass.collection_name}.#{col_name}"
       end
     end
 
@@ -622,7 +620,8 @@ module Wice
     attr_accessor :model_klass
 
     def alias_or_table_name(table_alias)
-      table_alias || self.model_klass.table_name
+      table_alias || self.model_klass.collection_name
+#      table_alias || self.model_klass.table_name
     end
 
     def wg_initialize_request_parameters(all_filter_params, main_table, table_alias, custom_filter_active)  #:nodoc:
@@ -679,10 +678,10 @@ module Wice
         return ::Wice::FilterConditionsGeneratorCustomFilter.new(self).generate_conditions(table_alias, @request_params)
       end
 
-      column_type = self.type.to_s
+      column_type = self.type
 
       processor_class = ::Wice::FilterConditionsGenerator.handled_type[column_type]
-
+      
       if processor_class
         return processor_class.new(self).generate_conditions(table_alias, @request_params)
       else
@@ -742,7 +741,7 @@ module Wice
   end
 
   class FilterConditionsGeneratorBoolean < FilterConditionsGenerator  #:nodoc:
-    @@handled_type[:boolean] = self
+    @@handled_type[Boolean] = self
 
     def  generate_conditions(table_alias, opts)   #:nodoc:
       unless (opts.kind_of?(Array) && opts.size == 1)
@@ -761,8 +760,8 @@ module Wice
   end
 
   class FilterConditionsGeneratorString < FilterConditionsGenerator  #:nodoc:
-    @@handled_type[:string] = self
-    @@handled_type[:text]   = self
+    @@handled_type[String] = self
+#    @@handled_type[:text]   = self
 
     def generate_conditions(table_alias, opts)   #:nodoc:
       if opts.kind_of? String
@@ -786,9 +785,9 @@ module Wice
   end
 
   class FilterConditionsGeneratorInteger < FilterConditionsGenerator  #:nodoc:
-    @@handled_type[:integer] = self
-    @@handled_type[:float]   = self
-    @@handled_type[:decimal] = self
+    @@handled_type[Integer] = self
+    @@handled_type[Float]   = self
+    @@handled_type[BigDecimal] = self
 
     def  generate_conditions(table_alias, opts)   #:nodoc:
       unless opts.kind_of? Hash
@@ -826,9 +825,9 @@ module Wice
   end
 
   class FilterConditionsGeneratorDate < FilterConditionsGenerator  #:nodoc:
-    @@handled_type[:date]      = self
-    @@handled_type[:datetime]  = self
-    @@handled_type[:timestamp] = self
+    @@handled_type[Date]      = self
+    @@handled_type[DateTime]  = self
+    @@handled_type[Time] = self
 
     def generate_conditions(table_alias, opts)   #:nodoc:
       conditions = [[]]

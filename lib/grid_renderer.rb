@@ -452,12 +452,13 @@ module Wice
       end
 
       new_params[:only_path] = false
-      base_link_with_pp_info = controller.url_for(new_params).gsub(/\?+$/,'')
+      new_params[:protocol] = 'https' #fix-this
+      base_link_with_pp_info = controller.send( :url_for, new_params).gsub(/\?+$/,'')
 
       if new_params[@grid.name]
         new_params[@grid.name].delete(:pp)    # and reset back to pagination if show all mode is on
       end
-      [base_link_with_pp_info, controller.url_for(new_params).gsub(/\?+$/,'')]
+      [base_link_with_pp_info, controller.send(:url_for, new_params).gsub(/\?+$/,'')]
     end
 
 
@@ -470,7 +471,7 @@ module Wice
       new_params[@grid.name][:export] = format
 
       new_params[:only_path] = false
-      controller.url_for(new_params)
+      controller.send(:url_for, new_params)
     end
 
 

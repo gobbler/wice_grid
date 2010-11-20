@@ -346,7 +346,6 @@ module Wice
 
           rendering.each_column_aware_of_one_last_one(:in_html) do |column, last|
             if column.filter_shown?
-
               filter_html_code, filter_js_code = column.render_filter
               filter_html_code = filter_html_code.html_safe_if_necessary
               cached_javascript << filter_js_code
@@ -382,15 +381,16 @@ module Wice
       end
 
       content << '</thead><tfoot>'
-      content << rendering.pagination_panel(no_rightmost_column, options[:hide_csv_button]) do
-        if pagination_panel_content_html
-          pagination_panel_content_html
-        else
-          pagination_panel_content_html, pagination_panel_content_js =
-            pagination_panel_content(grid, options[:extra_request_parameters], options[:allow_showing_all_records])
-          pagination_panel_content_html
-        end
-      end
+#fix-this: may be 'More' button rather than pagionation (since we have filters)
+#       content << rendering.pagination_panel(no_rightmost_column, options[:hide_csv_button]) do
+#         if pagination_panel_content_html
+#           pagination_panel_content_html
+#         else
+#           pagination_panel_content_html, pagination_panel_content_js =
+#             pagination_panel_content(grid, options[:extra_request_parameters], options[:allow_showing_all_records])
+#           pagination_panel_content_html
+#         end
+#       end
 
       content << '</tfoot><tbody>'
       cached_javascript << pagination_panel_content_js
@@ -747,34 +747,36 @@ module Wice
     end
 
     def pagination_info(grid, allow_showing_all_records)  #:nodoc:
-      collection = grid.resultset
+#fix-this, may be More buttons rather than pagionation (since we have filters)
+#       collection = grid.resultset
 
-      collection_total_entries = collection.total_entries
-      collection_total_entries_str = collection_total_entries.to_s
-      parameters = grid.get_state_as_parameter_value_pairs
+#       collection_total_entries = collection.total_entries
+#       collection_total_entries_str = collection_total_entries.to_s
+#       parameters = grid.get_state_as_parameter_value_pairs
 
-      js = ''
-      html = if (collection.total_pages < 2 && collection.length == 0)
-        '0'
-      else
-        parameters << ["#{grid.name}[pp]", collection_total_entries_str]
+#       js = ''
+#       html = if (collection.total_pages < 2 && collection.length == 0)
+#         '0'
+#       else
+#         parameters << ["#{grid.name}[pp]", collection_total_entries_str]
 
-        "#{collection.offset + 1}-#{collection.offset + collection.length} / #{collection_total_entries_str} " +
-          if (! allow_showing_all_records) || collection_total_entries <= collection.length
-            ''
-          else
-            res, js = show_all_link(collection_total_entries, parameters, grid.name)
-            res
-          end
-      end +
-      if grid.all_record_mode?
-        res, js = back_to_pagination_link(parameters, grid.name)
-        res
-      else
-        ''
-      end
+#         "#{collection.offset + 1}-#{collection.offset + collection.length} / #{collection_total_entries_str} " +
+#           if (! allow_showing_all_records) || collection_total_entries <= collection.length
+#             ''
+#           else
+#             res, js = show_all_link(collection_total_entries, parameters, grid.name)
+#             res
+#           end
+#       end +
+#       if grid.all_record_mode?
+#         res, js = back_to_pagination_link(parameters, grid.name)
+#         res
+#       else
+#         ''
+#       end
 
-      [html, js]
+#       [html, js]
+      ["", ""]
     end
 
   end
