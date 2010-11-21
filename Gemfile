@@ -11,5 +11,7 @@ group :test do
   gem "rspec-rails", "~> 2.0.1"
   gem 'rspec'
   gem 'launchy'
+  gem 'machinist_mongo', :require => 'machinist/mongoid'
+  gem 'faker'
   #gem 'rr'
 end
