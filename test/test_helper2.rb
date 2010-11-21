@@ -15,5 +15,5 @@ rescue Bundler::GemNotFound => e
 end if File.exist?(gemfile)
 
 require 'bundler'
-Bundler.require(:default, 'test')# if defined?(Bundler)
+Bundler.require(:default, :test)# if defined?(Bundler)
 
