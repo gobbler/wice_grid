@@ -55,7 +55,7 @@ describe UsersController do
   
   it "should render grid as table" do
     visit '/users'
-    save_and_open_page
+    page.should have_selector('table tr')
   end
 end  
 
