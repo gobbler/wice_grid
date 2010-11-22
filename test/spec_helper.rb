@@ -4,6 +4,7 @@ require File.join(File.dirname(__FILE__), '/rails_test_app')
 require 'capybara'
 require 'capybara/dsl'
 Capybara.app = Rails.application
+Capybara.save_and_open_page_path = File.join(File.dirname(__FILE__), '/public')
 
 RSpec.configure do |rspec_config|
   rspec_config.before(:each) do

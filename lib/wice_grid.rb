@@ -154,7 +154,7 @@ module Wice
       @table_column_matrix = TableColumnMatrix.new
       @table_column_matrix.default_model_class = @klass
 
-      @ar_options = {}
+      @criteria = Mongoid::Criteria.new(@klass)
       @status = HashWithIndifferentAccess.new
 
       if @options[:order]
@@ -173,7 +173,7 @@ module Wice
 
       process_loading_query
       process_params
-      @ar_options_formed = false
+      @criteria_formed = false
     end
 
     # A block executed from within the plugin to process records of the current page.
@@ -253,10 +253,10 @@ module Wice
       end
     end
 
-    def form_ar_options(opts = {})  #:nodoc:
+    def form_criteria(opts = {})  #:nodoc:
 
-      return if @ar_options_formed
-      @ar_options_formed = true unless opts[:forget_generated_options]
+      return if @criteria_formed
+      @criteria_formed = true unless opts[:forget_generated_options]
 
       # validate @status[:order_direction]
       @status[:order_direction] = case @status[:order_direction]
@@ -273,41 +273,39 @@ module Wice
         @status.delete(:f)
       end
 
-      @ar_options[:conditions] = klass.send(:merge_conditions, @status[:conditions], * @table_column_matrix.conditions )
-      # conditions processed
-
-      if (! opts[:skip_ordering]) && @status[:order]
-        @ar_options[:order] = add_custom_order_sql(complete_column_name(@status[:order]))
-
-        @ar_options[:order] += ' ' + @status[:order_direction]
+#       @criteria[:conditions] = klass.send(:merge_conditions, @status[:conditions], * @table_column_matrix.conditions )
+#       # conditions processed
+      
+      if !opts[:skip_ordering] && @status[:order]
+        order_by = @status[:order].to_sym.send( @status[:order_direction].to_sym )
+        @criteria.order_by(order_by)
       end
 
-      if self.output_html?
-        @ar_options[:per_page] = if all_record_mode?
-          # reset the :pp value in all records mode
-          @status[:pp] = count_resultset_without_paging_without_user_filters
-        else
-          @status[:per_page]
-        end
+#       if self.output_html?
+#         @criteria[:per_page] = if all_record_mode?
+#           # reset the :pp value in all records mode
+#           @status[:pp] = count_resultset_without_paging_without_user_filters
+#         else
+#           @status[:per_page]
+#         end
 
-        @ar_options[:page] = @status[:page]
-        @ar_options[:total_entries] = @status[:total_entries] if @status[:total_entries]
-      end
+#         @criteria[:page] = @status[:page]
+#         @criteria[:total_entries] = @status[:total_entries] if @status[:total_entries]
+#       end
 
-      @ar_options[:joins]   = @options[:joins]
-      @ar_options[:include] = @options[:include]
-      @ar_options[:group] = @options[:group]
-      @ar_options[:select]  = @options[:select]
-      #fix-this, Criteria must respect options
-      @ar_options = Mongoid::Criteria.new(@klass)
+#       @criteria[:joins]   = @options[:joins]
+#       @criteria[:include] = @options[:include]
+#       @criteria[:group] = @options[:group]
+#       @criteria[:select]  = @options[:select]
+#       #fix-this, Criteria must respect options
     end
 
     def read  #:nodoc:
-      form_ar_options
+      form_criteria
       with_exclusive_scope do
+        @resultset = @criteria
 #fix-this
-        @resultset = @ar_options
-#        @resultset = self.output_csv? ?  @klass.find(:all, @ar_options) : @klass.paginate(@ar_options)
+#        @resultset = self.output_csv? ?  @klass.find(:all, @criteria) : @klass.paginate(@criteria)
       end
       invoke_resultset_callbacks
     end
@@ -397,8 +395,8 @@ module Wice
     end
 
     def count  #:nodoc:
-      form_ar_options(:skip_ordering => true, :forget_generated_options => true)
-      @klass.count(:conditions => @ar_options[:conditions], :joins => @ar_options[:joins], :include => @ar_options[:include], :group => @ar_options[:group])
+      form_criteria(:skip_ordering => true, :forget_generated_options => true)
+      @klass.count(:conditions => @criteria[:conditions], :joins => @criteria[:joins], :include => @criteria[:include], :group => @criteria[:group])
     end
 
     alias_method :size, :count
@@ -448,7 +446,7 @@ module Wice
     def dump_status #:nodoc:
       "   params: #{params[name].inspect}\n"  +
       "   status: #{@status.inspect}\n" +
-      "   ar_options #{@ar_options.inspect}\n"
+      "   ar_options #{@criteria.inspect}\n"
     end
 
 
@@ -492,33 +490,6 @@ module Wice
       yield
     end
 
-
-    def add_custom_order_sql(fully_qualified_column_name) #:nodoc:
-      return ""
-#fix-this: basically it has to be implemented for Mongoid
-#       custom_order = if @options[:custom_order].has_key?(fully_qualified_column_name)
-#         @options[:custom_order][fully_qualified_column_name]
-#       else
-#         if view_column = @renderer[fully_qualified_column_name]
-#           view_column.custom_order
-#         else
-#           nil
-#         end
-#       end
-
-#       if custom_order.blank?
-#         ActiveRecord::Base.connection.quote_table_name(fully_qualified_column_name.strip)
-#       else
-#         if custom_order.is_a? String
-#           custom_order.gsub(/\?/, fully_qualified_column_name)
-#         elsif custom_order.is_a? Proc
-#           custom_order.call(fully_qualified_column_name)
-#         else
-#           raise WiceGridArgumentError.new("invalid custom order #{custom_order.inspect}")
-#         end
-#       end
-    end
-
     def complete_column_name(col_name)  #:nodoc:
       if col_name.index('.') # already has a table name
         col_name
@@ -537,22 +508,22 @@ module Wice
 
 
     def resultset_without_paging_without_user_filters  #:nodoc:
-      form_ar_options
+      form_criteria
       with_exclusive_scope do
-        @klass.find(:all, :joins => @ar_options[:joins],
-                          :include => @ar_options[:include],
-                          :group => @ar_options[:group],
+        @klass.find(:all, :joins => @criteria[:joins],
+                          :include => @criteria[:include],
+                          :group => @criteria[:group],
                           :conditions => @options[:conditions])
       end
     end
 
     def count_resultset_without_paging_without_user_filters  #:nodoc:
-      form_ar_options
+      form_criteria
       with_exclusive_scope do
         @klass.count(
-          :joins => @ar_options[:joins],
-          :include => @ar_options[:include],
-          :group => @ar_options[:group],
+          :joins => @criteria[:joins],
+          :include => @criteria[:include],
+          :group => @criteria[:group],
           :conditions => @options[:conditions]
         )
       end
@@ -560,13 +531,13 @@ module Wice
 
 
     def resultset_without_paging_with_user_filters  #:nodoc:
-      form_ar_options
+      form_criteria
       with_exclusive_scope do
-        @klass.find(:all, :joins      => @ar_options[:joins],
-                          :include    => @ar_options[:include],
-                          :group      => @ar_options[:group],
-                          :conditions => @ar_options[:conditions],
-                          :order      => @ar_options[:order])
+        @klass.find(:all, :joins      => @criteria[:joins],
+                          :include    => @criteria[:include],
+                          :group      => @criteria[:group],
+                          :conditions => @criteria[:conditions],
+                          :order      => @criteria[:order])
       end
     end
 

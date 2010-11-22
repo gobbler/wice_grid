@@ -29,6 +29,12 @@ describe UsersController do
       first_name_column = all('td[1]').map(&:text)
       first_name_column.should == ["ccddee", "bbccdd", "aabbcc"]
     end
+    
+    it "should be possible to see filters and use them" do
+      save_and_open_page
+      fill_in "grid[f][first_name]", :with => 'cc'
+    end
+
 end
   
 end  
