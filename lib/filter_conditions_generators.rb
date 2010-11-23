@@ -95,45 +95,28 @@ module Wice
 
   end
 
-#   class FilterConditionsGeneratorInteger < FilterConditionsGenerator  #:nodoc:
-#     @@handled_type[Integer] = self
-#     @@handled_type[Float]   = self
-#     @@handled_type[BigDecimal] = self
+  class FilterConditionsGeneratorInteger < FilterConditionsGenerator  #:nodoc:
+    @@handled_type[Integer] = self
+#    @@handled_type[Float]   = self
+#    @@handled_type[BigDecimal] = self
 
-#     def  generate_conditions(opts)   #:nodoc:
-#       unless opts.kind_of? Hash
-#         Wice.log "invalid parameters for the grid integer filter - must be a hash"
-#         return false
-#       end
-#       conditions = [[]]
-#       if opts[:fr]
-#         if opts[:fr] =~ /\d/
-#           conditions[0] << " #{@field.alias_or_table_name(table_alias)}.#{@field.name} >= ? "
-#           conditions << opts[:fr]
-#         else
-#           opts.delete(:fr)
-#         end
-#       end
+    def  generate_conditions(opts)   #:nodoc:
+      unless opts.kind_of? Hash
+        Wice.log "invalid parameters for the grid integer filter - must be a hash"
+        return false
+      end
 
-#       if opts[:to]
-#         if opts[:to] =~ /\d/
-#           conditions[0] << " #{@field.alias_or_table_name(table_alias)}.#{@field.name} <= ? "
-#           conditions << opts[:to]
-#         else
-#           opts.delete(:to)
-#         end
-#       end
+      if !opts[:fr] || !(opts[:fr] =~ /\d/) || !opts[:to] || !(opts[:to] =~ /\d/)
+        Wice.log "invalid parameters for the grid integer filter - either range limits are not supplied or they are not numeric"
+        return false
+      end
 
-#       if conditions.size == 1
-#         Wice.log "invalid parameters for the grid integer filter - either range limits are not supplied or they are not numeric"
-#         return false
-#       end
+      @criteria.where(@field.name.to_sym.gt => opts[:fr].to_i)
+      @criteria.where(@field.name.to_sym.lt => opts[:to].to_i)
 
-#       conditions[0] = conditions[0].join(' and ')
-
-#       return conditions
-#     end
-#   end
+      return true
+    end
+  end
 
   class FilterConditionsGeneratorDate < FilterConditionsGenerator  #:nodoc:
     @@handled_type[Date]      = self

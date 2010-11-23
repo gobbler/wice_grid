@@ -15,6 +15,8 @@ class User
   field :first_name
   field :year, :type => Date
   field :last_login, :type => Time
+  field :computers_number, :type => Integer
+  field :archived, :type => Boolean
   
   def self.merge_conditions(*conditions)
     ""

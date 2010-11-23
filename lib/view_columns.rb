@@ -70,9 +70,6 @@ module Wice
 
     def render_filter #:nodoc:
       params = @grid.filter_params(self)
-      ["fr", "to"].each do |key|
-        params[key] = DateTime.parse(params[key]) if params[key] && params[key].is_a?(String)
-      end
       res = render_filter_internal(params)
       return (res.is_a?(Array)) ? res : [res, nil]
     end

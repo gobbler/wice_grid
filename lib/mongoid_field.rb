@@ -40,7 +40,7 @@ module Wice
       processor_klass =  ::Wice::FilterConditionsGeneratorCustomFilter if custom_filter_active
       processor_klass = ::Wice::FilterConditionsGenerator.handled_type[self.type] unless processor_klass
       unless processor_klass
-        Wice.log("No processor for database type #{column_type}!!!")
+        Wice.log("No processor for database type #{self.type}!!!")
         return nil
       end
       processor_klass.new(self, criteria).generate_conditions(request_params)

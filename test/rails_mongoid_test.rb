@@ -7,7 +7,7 @@ describe UsersController do
     before(:each) do
       @aa = User.make(:first_name => 'aabbcc', :year => Time.parse('1980-01-01'))
       @bb = User.make(:first_name => 'bbccdd', :year => Time.parse('1990-01-01'), :last_login => Time.parse('2010-01-01 4pm'))
-      @cc = User.make(:first_name => 'ccddee', :year => Time.parse('2000-01-01'))
+      @cc = User.make(:first_name => 'ccddee', :year => Time.parse('2000-01-01'), :computers_number => 3)
     end
     
     it "should render grid as table" do
@@ -65,6 +65,18 @@ describe UsersController do
       visit URI.escape('/users?grid[f][last_login][fr]=2010-01-01 01:00&grid[f][last_login][to]=2010-01-03 01:00')
       first_name_column = all('tbody td[1]').map(&:text)
       first_name_column.size.should == 1
+    end
+
+    it "should be possible to see Integer filters and use them" do
+      UsersController.columns do |grid| 
+        grid.column :column_name => 'Computers Number', :attribute_name => 'computers_number'
+      end
+      visit '/users?grid[f][computers_number][fr]=2&grid[f][computers_number][to]=5'
+      first_name_column = all('tbody td[1]').map(&:text)
+      first_name_column.size.should == 1
+    end
+
+    it "should be possible to see Boolean filters and use them" do
     end
     
 end
