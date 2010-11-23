@@ -12,7 +12,6 @@ describe UsersController do
     end
     
     it "should render grid as table" do
-      save_and_open_page
       page.should have_selector('table tr')
     end
 
@@ -22,18 +21,21 @@ describe UsersController do
       
       click_link 'First Name'
       page.should have_selector '.asc'
-      first_name_column = all('td[1]').map(&:text)
+      first_name_column = all('tbody td[1]').map(&:text)
       first_name_column.should == ["aabbcc", "bbccdd", "ccddee"]
       
       click_link 'First Name'
       page.should have_selector '.desc'
-      first_name_column = all('td[1]').map(&:text)
+      
+      first_name_column = all('tbody td[1]').map(&:text)
       first_name_column.should == ["ccddee", "bbccdd", "aabbcc"]
     end
     
     it "should be possible to see filters and use them" do
-      save_and_open_page
-      fill_in "grid[f][first_name]", :with => 'cc'
+      fill_in "grid[f][first_name]", :with => 'bb'
+      visit '/users?grid[f][first_name][v]=bb&grid[f][first_name][n]=bb'
+      first_name_column = all('tbody td[1]').map(&:text)
+      first_name_column.size.should == 2
     end
 
 end

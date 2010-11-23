@@ -381,16 +381,16 @@ module Wice
       end
 
       content << '</thead><tfoot>'
-#fix-this: may be 'More' button rather than pagionation (since we have filters)
-#       content << rendering.pagination_panel(no_rightmost_column, options[:hide_csv_button]) do
-#         if pagination_panel_content_html
-#           pagination_panel_content_html
-#         else
-#           pagination_panel_content_html, pagination_panel_content_js =
-#             pagination_panel_content(grid, options[:extra_request_parameters], options[:allow_showing_all_records])
-#           pagination_panel_content_html
-#         end
-#       end
+
+      content << rendering.pagination_panel(no_rightmost_column, options[:hide_csv_button]) do
+        if pagination_panel_content_html
+          pagination_panel_content_html
+        else
+          pagination_panel_content_html, pagination_panel_content_js =
+            pagination_panel_content(grid, options[:extra_request_parameters], options[:allow_showing_all_records])
+          pagination_panel_content_html
+        end
+      end
 
       content << '</tfoot><tbody>'
       cached_javascript << pagination_panel_content_js
@@ -476,6 +476,8 @@ module Wice
       end
 
       content << '</tbody></table></div>'
+      
+      content << link_to( "More", rendering.more_link(controller, options[:extra_request_parameters]))
 
       base_link_for_filter, base_link_for_show_all_records = rendering.base_link_for_filter(controller, options[:extra_request_parameters])
 
@@ -672,8 +674,6 @@ module Wice
 
 
     def grid_csv(grid, rendering) #:nodoc:
-
-
       field_separator = (grid.export_to_csv_enabled && grid.export_to_csv_enabled.is_a?(String)) ? grid.export_to_csv_enabled : ','
       spreadsheet = ::Wice::Spreadsheet.new(grid.name, field_separator)
 
@@ -709,12 +709,12 @@ module Wice
 
       html, js = pagination_info(grid, allow_showing_all_records)
 
-      [will_paginate(grid.resultset,
-        :previous_label => WiceGridNlMessageProvider.get_message(:PREVIOUS_LABEL),
-        :next_label     => WiceGridNlMessageProvider.get_message(:NEXT_LABEL),
-        :param_name     => "#{grid.name}[page]",
-        :params         => extra_request_parameters).to_s +
-        (' <div class="pagination_status">' + html + '</div>').html_safe_if_necessary, js]
+#       [will_paginate(grid.resultset,
+#         :previous_label => WiceGridNlMessageProvider.get_message(:PREVIOUS_LABEL),
+#         :next_label     => WiceGridNlMessageProvider.get_message(:NEXT_LABEL),
+#         :param_name     => "#{grid.name}[page]",
+#         :params         => extra_request_parameters).to_s +
+#         (' <div class="pagination_status">' + html + '</div>').html_safe_if_necessary, js]
     end
 
 

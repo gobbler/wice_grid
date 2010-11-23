@@ -1,3 +1,4 @@
+module Wice
   class FilterConditionsGenerator   #:nodoc:
 
     cattr_accessor :handled_type
@@ -5,7 +6,7 @@
 
     def initialize(field, criteria)   #:nodoc:
       @field = field
-      @criteria = @criteria
+      @criteria = criteria
     end
     
     def generate_conditions(opts)
@@ -15,7 +16,7 @@
 
 #   class FilterConditionsGeneratorCustomFilter < FilterConditionsGenerator #:nodoc:
 
-#     def generate_conditions(table_alias, opts)   #:nodoc:
+#     def generate_conditions(opts)   #:nodoc:
 #       if opts.empty?
 #         Wice.log "empty parameters for the grid custom filter"
 #         return false
@@ -26,13 +27,13 @@
 #         opts_with_special_values, normal_opts = opts.partition{|v| ::Wice::GridTools.special_value(v)}
 
 #         conditions_ar = if normal_opts.size > 0
-#           [" #{@column.alias_or_table_name(table_alias)}.#{@column.name} IN ( " + (['?'] * normal_opts.size).join(', ') + ' )'] + normal_opts
+#           [" #{@field.alias_or_table_name(table_alias)}.#{@field.name} IN ( " + (['?'] * normal_opts.size).join(', ') + ' )'] + normal_opts
 #         else
 #           []
 #         end
 
 #         if opts_with_special_values.size > 0
-#           special_conditions = opts_with_special_values.collect{|v| " #{@column.alias_or_table_name(table_alias)}.#{@column.name} is " + v}.join(' or ')
+#           special_conditions = opts_with_special_values.collect{|v| " #{@field.alias_or_table_name(table_alias)}.#{@field.name} is " + v}.join(' or ')
 #           if conditions_ar.size > 0
 #             conditions_ar[0] = " (#{conditions_ar[0]} or #{special_conditions} ) "
 #           else
@@ -42,9 +43,9 @@
 #         conditions_ar
 #       else
 #         if ::Wice::GridTools.special_value(opts)
-#           " #{@column.alias_or_table_name(table_alias)}.#{@column.name} is " + opts
+#           " #{@field.alias_or_table_name(table_alias)}.#{@field.name} is " + opts
 #         else
-#           [" #{@column.alias_or_table_name(table_alias)}.#{@column.name} = ?", opts]
+#           [" #{@field.alias_or_table_name(table_alias)}.#{@field.name} = ?", opts]
 #         end
 #       end
 #     end
@@ -54,16 +55,16 @@
 #   class FilterConditionsGeneratorBoolean < FilterConditionsGenerator  #:nodoc:
 #     @@handled_type[Boolean] = self
 
-#     def  generate_conditions(table_alias, opts)   #:nodoc:
+#     def  generate_conditions(opts)   #:nodoc:
 #       unless (opts.kind_of?(Array) && opts.size == 1)
 #         Wice.log "invalid parameters for the grid boolean filter - must be an one item array: #{opts.inspect}"
 #         return false
 #       end
 #       opts = opts[0]
 #       if opts == 'f'
-#         [" (#{@column.alias_or_table_name(table_alias)}.#{@column.name} = ? or #{@column.alias_or_table_name(table_alias)}.#{@column.name} is null) ", false]
+#         [" (#{@field.alias_or_table_name(table_alias)}.#{@field.name} = ? or #{@field.alias_or_table_name(table_alias)}.#{@field.name} is null) ", false]
 #       elsif opts == 't'
-#         [" #{@column.alias_or_table_name(table_alias)}.#{@column.name} = ?", true]
+#         [" #{@field.alias_or_table_name(table_alias)}.#{@field.name} = ?", true]
 #       else
 #         nil
 #       end
@@ -72,15 +73,14 @@
 
   class FilterConditionsGeneratorString < FilterConditionsGenerator  #:nodoc:
     @@handled_type[String] = self
-#    @@handled_type[:text]   = self
 
-    def generate_conditions(table_alias, opts)   #:nodoc:
+    def generate_conditions(opts)   #:nodoc:
+      negation = nil
       if opts.kind_of? String
         string_fragment = opts
-        negation = ''
       elsif (opts.kind_of? Hash) && opts.has_key?(:v)
         string_fragment = opts[:v]
-        negation = opts[:n] == '1' ? 'NOT' : ''
+        #negation = opts[:n] == '1' ? 'NOT' : ''
       else
         Wice.log "invalid parameters for the grid string filter - must be a string: #{opts.inspect} or a Hash with keys :v and :n"
         return false
@@ -89,9 +89,7 @@
         Wice.log "invalid parameters for the grid string filter - empty string"
         return false
       end
-      @criteria.where(:column.name => /#{string_fragment}/)
-#       [" #{negation}  #{@column.alias_or_table_name(table_alias)}.#{@column.name} #{::Wice.get_string_matching_operators(@column.model_klass)} ?",
-#           '%' + string_fragment + '%']
+      @criteria.where(@field.name.to_s => /#{string_fragment}/)
     end
 
   end
@@ -101,7 +99,7 @@
 #     @@handled_type[Float]   = self
 #     @@handled_type[BigDecimal] = self
 
-#     def  generate_conditions(table_alias, opts)   #:nodoc:
+#     def  generate_conditions(opts)   #:nodoc:
 #       unless opts.kind_of? Hash
 #         Wice.log "invalid parameters for the grid integer filter - must be a hash"
 #         return false
@@ -109,7 +107,7 @@
 #       conditions = [[]]
 #       if opts[:fr]
 #         if opts[:fr] =~ /\d/
-#           conditions[0] << " #{@column.alias_or_table_name(table_alias)}.#{@column.name} >= ? "
+#           conditions[0] << " #{@field.alias_or_table_name(table_alias)}.#{@field.name} >= ? "
 #           conditions << opts[:fr]
 #         else
 #           opts.delete(:fr)
@@ -118,7 +116,7 @@
 
 #       if opts[:to]
 #         if opts[:to] =~ /\d/
-#           conditions[0] << " #{@column.alias_or_table_name(table_alias)}.#{@column.name} <= ? "
+#           conditions[0] << " #{@field.alias_or_table_name(table_alias)}.#{@field.name} <= ? "
 #           conditions << opts[:to]
 #         else
 #           opts.delete(:to)
@@ -141,15 +139,15 @@
 #     @@handled_type[DateTime]  = self
 #     @@handled_type[Time] = self
 
-#     def generate_conditions(table_alias, opts)   #:nodoc:
+#     def generate_conditions(opts)   #:nodoc:
 #       conditions = [[]]
 #       if opts[:fr]
-#         conditions[0] << " #{@column.alias_or_table_name(table_alias)}.#{@column.name} >= ? "
+#         conditions[0] << " #{@field.alias_or_table_name(table_alias)}.#{@field.name} >= ? "
 #         conditions << opts[:fr]
 #       end
 
 #       if opts[:to]
-#         conditions[0] << " #{@column.alias_or_table_name(table_alias)}.#{@column.name} <= ? "
+#         conditions[0] << " #{@field.alias_or_table_name(table_alias)}.#{@field.name} <= ? "
 #         conditions << opts[:to]
 #       end
 
@@ -159,3 +157,4 @@
 #       return conditions
 #     end
 #   end
+end

@@ -7,7 +7,15 @@ module Wice
     include ActionView::Helpers::TextHelper
     include ActionView::Helpers::AssetTagHelper
     include ActionView::Helpers::JavaScriptHelper
-
+    
+    def config
+      ActionController::Base.config
+    end
+    
+    def controller
+      @grid.controller
+    end
+    
     attr_reader :page_parameter_name
     attr_reader :after_row_handler
     attr_reader :before_row_handler
@@ -469,9 +477,20 @@ module Wice
       new_params[@grid.name][:export] = format
 
       new_params[:only_path] = false
+      new_params[:protocol] = 'https'
       controller.send(:url_for, new_params)
     end
 
+    def more_link(controller, extra_parameters)
+      new_params = controller.params.deep_clone_yl
+      new_params.merge!(extra_parameters)
+
+      new_params[@grid.name] = {} unless new_params[@grid.name]
+      new_params[@grid.name][:per_page] = @grid.status[:per_page].to_i + (@grid.options[:per_page] || Defaults::PER_PAGE)
+      new_params[:protocol] = 'https' #fix-this
+
+      controller.send(:url_for, new_params)
+    end
 
     def column_link(column, direction, params, extra_parameters = {})   #:nodoc:
       column_attribute_name =  column.attribute_name

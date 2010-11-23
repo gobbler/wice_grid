@@ -3,7 +3,6 @@ require 'will_paginate.rb'
 require 'wice_grid_misc.rb'
 require 'wice_grid_core_ext.rb'
 require 'grid_renderer.rb'
-require 'filter_conditions_generators'
 require 'helpers/wice_grid_view_helpers.rb'
 require 'helpers/wice_grid_misc_view_helpers.rb'
 require 'helpers/wice_grid_serialized_queries_view_helpers.rb'
@@ -83,7 +82,7 @@ module Wice
 
   class WiceGrid
 
-    attr_reader :klass, :name, :resultset, :custom_order, :query_store_model
+    attr_reader :klass, :name, :resultset, :custom_order, :query_store_model, :options, :controller
     attr_reader :ar_options, :status, :export_to_csv_enabled, :csv_file_name, :saved_query
     attr_writer :renderer
     attr_accessor :output_buffer, :view_helper_finished, :csv_tempfile
@@ -125,7 +124,6 @@ module Wice
         :name                 => Defaults::GRID_NAME,
         :order                => nil,
         :order_direction      => Defaults::ORDER_DIRECTION,
-        :page                 => 1,
         :per_page             => Defaults::PER_PAGE,
         :saved_query          => nil,
         :select               => nil,
@@ -226,7 +224,7 @@ module Wice
       raise WiceGridArgumentError.new("Model #{@klass.name} does not have field '#{field_name}'.! ") unless field
 
       filter_conditions = field.wice_add_filter_criteria(@status[:f], @criteria, custom_filter_active)
-      @status[:f].delete(field_name) if @status[:f] && conditions.blank?
+      @status[:f].delete(field_name) if @status[:f] && filter_conditions.blank?
 
       @has_any_filter_conditions ||= filter_conditions.blank?
       [field, nil , true]
@@ -257,6 +255,7 @@ module Wice
         @criteria.order_by(order_by)
       end
 
+      @criteria.limit(@status[:per_page].to_i)
 #       if self.output_html?
 #         @criteria[:per_page] = if all_record_mode?
 #           # reset the :pp value in all records mode
@@ -279,9 +278,8 @@ module Wice
     def read  #:nodoc:
       form_criteria
       with_exclusive_scope do
+        @criteria.options[:limit] = nil if @resultset = self.output_csv?
         @resultset = @criteria
-#fix-this
-#        @resultset = self.output_csv? ?  @klass.find(:all, @criteria) : @klass.paginate(@criteria)
       end
       invoke_resultset_callbacks
     end
