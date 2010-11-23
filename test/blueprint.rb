@@ -9,6 +9,7 @@ User.blueprint do
   year { Time.parse('1980-01-01') }
   last_login { Time.parse('1980-01-01 11:00')}
   computers_number { 1 }
+  archived { false }
 end
 
 

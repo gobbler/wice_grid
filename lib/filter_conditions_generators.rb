@@ -52,24 +52,18 @@ module Wice
 
 #   end
 
-#   class FilterConditionsGeneratorBoolean < FilterConditionsGenerator  #:nodoc:
-#     @@handled_type[Boolean] = self
+  class FilterConditionsGeneratorBoolean < FilterConditionsGenerator  #:nodoc:
+    @@handled_type[Boolean] = self
 
-#     def  generate_conditions(opts)   #:nodoc:
-#       unless (opts.kind_of?(Array) && opts.size == 1)
-#         Wice.log "invalid parameters for the grid boolean filter - must be an one item array: #{opts.inspect}"
-#         return false
-#       end
-#       opts = opts[0]
-#       if opts == 'f'
-#         [" (#{@field.alias_or_table_name(table_alias)}.#{@field.name} = ? or #{@field.alias_or_table_name(table_alias)}.#{@field.name} is null) ", false]
-#       elsif opts == 't'
-#         [" #{@field.alias_or_table_name(table_alias)}.#{@field.name} = ?", true]
-#       else
-#         nil
-#       end
-#     end
-#   end
+    def  generate_conditions(opts)   #:nodoc:
+      unless (opts.kind_of?(Array) && opts.size == 1 && ['f', 't'].include?(opts[0]))
+        Wice.log "invalid parameters for the grid boolean filter - must be an one item array: #{opts.inspect}"
+        return false
+      end
+      @criteria.where(@field.name.to_s => opts[0] == 't' ? true : false)
+      return true
+    end
+  end
 
   class FilterConditionsGeneratorString < FilterConditionsGenerator  #:nodoc:
     @@handled_type[String] = self

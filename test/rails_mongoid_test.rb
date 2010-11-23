@@ -5,7 +5,7 @@ describe UsersController do
   
   context "3 users" do
     before(:each) do
-      @aa = User.make(:first_name => 'aabbcc', :year => Time.parse('1980-01-01'))
+      @aa = User.make(:first_name => 'aabbcc', :year => Time.parse('1980-01-01'), :archived => true)
       @bb = User.make(:first_name => 'bbccdd', :year => Time.parse('1990-01-01'), :last_login => Time.parse('2010-01-01 4pm'))
       @cc = User.make(:first_name => 'ccddee', :year => Time.parse('2000-01-01'), :computers_number => 3)
     end
@@ -77,6 +77,12 @@ describe UsersController do
     end
 
     it "should be possible to see Boolean filters and use them" do
+      UsersController.columns do |grid| 
+        grid.column :column_name => 'Archived', :attribute_name => 'archived'
+      end
+      visit '/users?grid[f][archived][]=f'
+      first_name_column = all('tbody td[1]').map(&:text)
+      first_name_column.size.should == 2
     end
     
 end
