@@ -90,6 +90,7 @@ module Wice
         return false
       end
       @criteria.where(@field.name.to_s => /#{string_fragment}/)
+      return true
     end
 
   end
@@ -134,27 +135,15 @@ module Wice
 #     end
 #   end
 
-#   class FilterConditionsGeneratorDate < FilterConditionsGenerator  #:nodoc:
-#     @@handled_type[Date]      = self
-#     @@handled_type[DateTime]  = self
-#     @@handled_type[Time] = self
+  class FilterConditionsGeneratorDate < FilterConditionsGenerator  #:nodoc:
+    @@handled_type[Date]      = self
+    @@handled_type[DateTime]  = self
+    @@handled_type[Time] = self
 
-#     def generate_conditions(opts)   #:nodoc:
-#       conditions = [[]]
-#       if opts[:fr]
-#         conditions[0] << " #{@field.alias_or_table_name(table_alias)}.#{@field.name} >= ? "
-#         conditions << opts[:fr]
-#       end
-
-#       if opts[:to]
-#         conditions[0] << " #{@field.alias_or_table_name(table_alias)}.#{@field.name} <= ? "
-#         conditions << opts[:to]
-#       end
-
-#       return false if conditions.size == 1
-
-#       conditions[0] = conditions[0].join(' and ')
-#       return conditions
-#     end
-#   end
+    def generate_conditions(opts)   #:nodoc:
+      @criteria.where(@field.name.to_sym.gt => opts[:fr]) if opts[:fr]
+      @criteria.where(@field.name.to_sym.lt => opts[:to]) if opts[:to]
+      opts[:fr] || opts[:to]
+    end
+  end
 end

@@ -11,13 +11,26 @@ end
 
 class User
   include Mongoid::Document
+  
   field :first_name
-    def self.merge_conditions(*conditions)
-      ""
-    end
+  field :year, :type => Date
+  field :last_login, :type => Time
+  
+  def self.merge_conditions(*conditions)
+    ""
+  end
 end
 
 class UsersController < ActionController::Base
+  
+  def self.columns(&block)
+    @@define_columns = block
+  end   
+  
+  def columns(grid)
+    @@define_columns.call(grid)
+  end
+  
   def index
     @users_grid = initialize_grid(User)
     render :inline => <<TEMPLATE 
@@ -31,7 +44,7 @@ class UsersController < ActionController::Base
    <body>
 <%= 
      grid(@users_grid) do |g|
-       g.column :column_name => 'First Name', :attribute_name => 'first_name'
+       controller.columns(g)
      end
 %>
    </body>

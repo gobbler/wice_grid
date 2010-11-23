@@ -6,6 +6,8 @@ Sham.first_name { Faker::Internet.user_name }
 
 User.blueprint do
   first_name 
+  year { Time.parse('1980-01-01') }
+  last_login { Time.parse('1980-01-01 11:00')}
 end
 
 

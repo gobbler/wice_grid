@@ -26,7 +26,6 @@ module Wice
 #fix-this - not like AR the Mongoid uses include rather than inheritance, hacked now in the models
 #   module MongoidDocumentExtensions
 #     def self.included(base)
-#       debugger
 #       base.extend(ClassMethods)
 #     end
 
@@ -150,7 +149,7 @@ module Wice
 
       @klass = klass
       @criteria = Mongoid::Criteria.new(@klass)
-      @has_any_filter_conditions = false
+      @has_any_filter_criteria = false
       @status = HashWithIndifferentAccess.new
 
       if @options[:order]
@@ -223,10 +222,10 @@ module Wice
       field = @klass.fields[field_name]
       raise WiceGridArgumentError.new("Model #{@klass.name} does not have field '#{field_name}'.! ") unless field
 
-      filter_conditions = field.wice_add_filter_criteria(@status[:f], @criteria, custom_filter_active)
-      @status[:f].delete(field_name) if @status[:f] && filter_conditions.blank?
+      criteria_added = field.wice_add_filter_criteria(@status[:f], @criteria, custom_filter_active)
+      @status[:f].delete(field_name) if @status[:f] && !criteria_added
 
-      @has_any_filter_conditions ||= filter_conditions.blank?
+      @has_any_filter_criteria ||= criteria_added
       [field, nil , true]
     end
 
@@ -245,7 +244,7 @@ module Wice
         ''
       end
 
-      @status.delete(:f) if !@has_any_filter_conditions
+      @status.delete(:f) if !@has_any_filter_criteria
 
 #       @criteria[:conditions] = klass.send(:merge_conditions, @status[:conditions], * @table_column_matrix.conditions )
 #       # conditions processed

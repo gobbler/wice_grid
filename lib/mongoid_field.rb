@@ -9,29 +9,29 @@ module Wice
 
       # Preprocess incoming parameters for datetime, if what's coming in is
       # a datetime (with custom_filter it can be anything else, and not
-      # the datetime hash {:fr => ..., :to => ...})
-      if (self.type == DateTime) && request_params.is_a?(Hash)
-        [:fr, :to].each do |sym|
+      # the datetime hash {"fr" => ..., "to" => ...})
+      if (self.type == Time) && request_params.is_a?(Hash)
+        ["fr", "to"].each do |sym|
           if request_params[sym]
             if request_params[sym].is_a?(String)
-              request_params[sym] = Wice::Defaults::DATETIME_PARSER.call(request_params[sym])
+              request_params[sym] = Time.parse(Wice::Defaults::DATETIME_PARSER.call(request_params[sym]).to_s)
             elsif request_params[sym].is_a?(Hash)
-              request_params[sym] = ::Wice::GridTools.params_2_datetime(request_params[sym])
+              request_params[sym] = Time.parse(::Wice::GridTools.params_2_datetime(request_params[sym]).to_s)
             end
           end
         end
+      end
 
-        # Preprocess incoming parameters for date, if what's coming in is
-        # a date (with custom_filter it can be anything else, and not
-        # the date hash {:fr => ..., :to => ...})
-        if self.type == Date && request_params.is_a?(Hash)
-          [:fr, :to].each do |sym|
-            if request_params[sym]
-              if request_params[sym].is_a?(String)
-                request_params[sym] = Wice::Defaults::DATE_PARSER.call(request_params[sym])
-              elsif request_params[sym].is_a?(Hash)
-                request_params[sym] = ::Wice::GridTools.params_2_date(request_params[sym])
-              end
+      # Preprocess incoming parameters for date, if what's coming in is
+      # a date (with custom_filter it can be anything else, and not
+      # the date hash {"fr" => ..., "to" => ...})
+      if self.type == Date && request_params.is_a?(Hash)
+        ["fr", "to"].each do |sym|
+          if request_params[sym]
+            if request_params[sym].is_a?(String)
+              request_params[sym] = Wice::Defaults::DATE_PARSER.call(request_params[sym]).to_time
+            elsif request_params[sym].is_a?(Hash)
+              request_params[sym] = ::Wice::GridTools.params_2_date(request_params[sym]).to_time
             end
           end
         end
