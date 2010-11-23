@@ -86,16 +86,6 @@ module Wice
       return query, query_without_equals_sign, parameter_name, dom_id.tr('.', '_')
     end
 
-    # bad name, because for the main table the name is not really 'fully_qualified'
-    def attribute_name_fully_qualified_for_all_but_main_table_columns #:nodoc:
-      self.main_table ? attribute_name : table_alias_or_table_name + '.' + attribute_name
-    end
-
-    def fully_qualified_attribute_name #:nodoc:
-      table_alias_or_table_name + '.' + attribute_name
-    end
-
-
     def filter_shown? #:nodoc:
       self.attribute_name && ! self.no_filter
     end
@@ -103,12 +93,7 @@ module Wice
     def filter_shown_in_main_table? #:nodoc:
       filter_shown? && ! self.detach_with_id
     end
-
-
-    def table_alias_or_table_name  #:nodoc:
-      table_alias || table_name
-    end
-
+    
     def capable_of_hosting_filter_related_icons?  #:nodoc:
       self.attribute_name.blank? && self.column_name.blank? && ! self.filter_shown?
     end
@@ -132,7 +117,7 @@ module Wice
     protected
 
     def form_parameter_template(v) #:nodoc:
-      {@grid.name => {:f => {self.attribute_name_fully_qualified_for_all_but_main_table_columns => v}}}.to_query
+      {@grid.name => {:f => {self.attribute_name => v}}}.to_query
     end
 
     def form_parameter_name(v) #:nodoc:

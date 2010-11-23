@@ -31,7 +31,7 @@ module Wice
     end
 
     def add_column(vc)  #:nodoc:
-      @columns_table[vc.fully_qualified_attribute_name] = vc if vc.attribute_name
+      @columns_table[vc.attribute_name] = vc if vc.attribute_name
       @columns << vc
     end
 
@@ -322,10 +322,8 @@ module Wice
 
       klass = ViewColumn
       if options[:attribute_name] &&
-          col_type_and_table_name = @grid.declare_column(options[:attribute_name], options[:model_class],
-            options[:custom_filter],  options[:table_alias])
-
-        db_column, table_name, main_table = col_type_and_table_name
+          col_type_and_table_name = @grid.declare_column(options[:attribute_name], options[:custom_filter])
+        db_column, table_name, is_main_table = col_type_and_table_name
         col_type = db_column.type
 
         if options[:custom_filter]
@@ -369,7 +367,7 @@ module Wice
         end # custom_filter
       end # attribute_name
 
-      vc = klass.new(block, options, @grid, table_name, main_table, custom_filter, @view)
+      vc = klass.new(block, options, @grid, table_name, is_main_table, custom_filter, @view)
 
       vc.negation    = options[:negation_in_filter] if vc.respond_to? :negation=
 
@@ -476,12 +474,7 @@ module Wice
 
 
     def column_link(column, direction, params, extra_parameters = {})   #:nodoc:
-
-      column_attribute_name = if column.attribute_name.index('.') or column.main_table
-        column.attribute_name
-      else
-        column.table_alias_or_table_name + '.' + column.attribute_name
-      end
+      column_attribute_name =  column.attribute_name
 
       query_params = {@grid.name => {
         @@order_parameter_name => column_attribute_name,

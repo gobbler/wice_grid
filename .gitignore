@@ -6,3 +6,4 @@ GSYMS
 GTAGS
 doc/
 log/
+./test/public/capybara-*
