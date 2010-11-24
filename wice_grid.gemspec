@@ -52,7 +52,6 @@ Gem::Specification.new do |s|
      "lib/js_adaptors/jquery_adaptor.rb",
      "lib/js_adaptors/js_adaptor.rb",
      "lib/js_adaptors/prototype_adaptor.rb",
-     "lib/table_column_matrix.rb",
      "lib/tasks/wice_grid_tasks.rake",
      "lib/view_columns.rb",
      "lib/views/create.rjs",
