@@ -22,53 +22,19 @@ ActionController::Base.send(:helper_method, :wice_grid_custom_filter_params)
 
 module Wice
 
-#fix-this - not like AR the Mongoid uses include rather than inheritance, hacked now in the models
-#   module MongoidDocumentExtensions
-#     def self.included(base)
-#       base.extend(ClassMethods)
-#     end
-
-#     module ClassMethods
-#       def merge_conditions(*conditions)
-#         #         segments = []
-
-#         #         conditions.each do |condition|
-#         #           unless condition.blank?
-#         #             sql = sanitize_sql(condition)
-#         #             segments << sql unless sql.blank?
-#         #           end
-#         #         end
-
-#         #         "(#{segments.join(') AND (')})" unless segments.empty?
-#         "" #to implement
-#       end
-#     end
-#   end
-
   class WiceGridRailtie < Rails::Railtie
 
     initializer "wice_grid_railtie.configure_rails_initialization" do |app|
-
       ActionController::Base.send(:include, Wice::Controller)
-
       Mongoid::Field.send(:include, ::Wice::MongoidField)
-
       ::ActionView::Base.class_eval { include Wice::GridViewHelper }
 
-      #ActiveRecord::Base.send(:include, ::Wice::Foo)
-      #Mongoid::Document.send(:include, ::Wice::MongoidDocumentExtensions)
       [ActionView::Helpers::AssetTagHelper,
        ActionView::Helpers::TagHelper,
        ActionView::Helpers::JavaScriptHelper,
        ActionView::Helpers::FormTagHelper].each do |m|
         JsCalendarHelpers.send(:include, m)
       end
-
-
-      # ActiveSupport::Notifications.subscribe do |*args|
-      #   event = ActiveSupport::Notifications::Event.new(*args)
-      #   puts "Got notification: #{event.inspect}"
-      # end
     end
 
     rake_tasks do
@@ -250,15 +216,13 @@ module Wice
 
       @status.delete(:f) if !@has_any_filter_criteria
 
-#       @criteria[:conditions] = klass.send(:merge_conditions, @status[:conditions], * @table_column_matrix.conditions )
-#       # conditions processed
-      
       if !opts[:skip_ordering] && @status[:order]
         order_by = @status[:order].to_sym.send( @status[:order_direction].to_sym )
         @criteria.order_by(order_by)
       end
 
       @criteria.limit(@status[:per_page].to_i)
+#       #fix-this, Criteria must respect options
 #       if self.output_html?
 #         @criteria[:per_page] = if all_record_mode?
 #           # reset the :pp value in all records mode
@@ -275,7 +239,6 @@ module Wice
 #       @criteria[:include] = @options[:include]
 #       @criteria[:group] = @options[:group]
 #       @criteria[:select]  = @options[:select]
-#       #fix-this, Criteria must respect options
     end
 
     def read  #:nodoc:

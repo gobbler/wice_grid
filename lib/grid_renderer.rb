@@ -47,6 +47,10 @@ module Wice
       @columns_table[k]
     end
 
+    def output_csv?
+      return grid.output_csv?
+    end
+    
     def number_of_columns(filter = nil)  #:nodoc:
       filter_columns(filter).size
     end
@@ -459,8 +463,7 @@ module Wice
         new_params[@grid.name].delete(:q)    # and no request for the saved query
       end
 
-      new_params[:only_path] = false
-      new_params[:protocol] = 'https' #fix-this
+      new_params[:only_path] = true
       base_link_with_pp_info = controller.send( :url_for, new_params).gsub(/\?+$/,'')
 
       if new_params[@grid.name]
@@ -478,8 +481,7 @@ module Wice
       new_params[@grid.name] = {} unless new_params[@grid.name]
       new_params[@grid.name][:export] = format
 
-      new_params[:only_path] = false
-      new_params[:protocol] = 'https'
+      new_params[:only_path] = true
       controller.send(:url_for, new_params)
     end
 
@@ -489,7 +491,7 @@ module Wice
 
       new_params[@grid.name] = {} unless new_params[@grid.name]
       new_params[@grid.name][:per_page] = @grid.status[:per_page].to_i + (@grid.options[:per_page] || Defaults::PER_PAGE)
-      new_params[:protocol] = 'https' #fix-this
+      new_params[:only_path] = true
 
       controller.send(:url_for, new_params)
     end
