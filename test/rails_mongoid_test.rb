@@ -8,6 +8,8 @@ describe UsersController do
       @aa = User.make(:first_name => 'aabbcc', :year => Time.parse('1980-01-01'), :archived => true)
       @bb = User.make(:first_name => 'bbccdd', :year => Time.parse('1990-01-01'), :last_login => Time.parse('2010-01-01 4pm'))
       @cc = User.make(:first_name => 'ccddee', :year => Time.parse('2000-01-01'), :computers_number => 3)
+      Computer.make(:user_id => @aa.id, :name => "aa_host_1")
+      Computer.make(:user_id => @aa.id, :name => "aa_host_2")
     end
     
     it "should render grid as table" do
@@ -83,6 +85,18 @@ describe UsersController do
       visit '/users?grid[f][archived][]=f'
       first_name_column = all('tbody td[1]').map(&:text)
       first_name_column.size.should == 2
+    end
+
+    it "should be possible to see aggregated association data" do
+      UsersController.columns do |grid| 
+        grid.column :column_name => 'Computers Number' do |user|
+          Computer.where(:user_id => user.id).count
+        end
+      end
+      visit '/users'
+      save_and_open_page
+      first_name_column = all('tbody td[1]').map(&:text)
+      first_name_column.map(&:to_i).sum.should == 2
     end
     
 end

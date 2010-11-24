@@ -12,4 +12,6 @@ User.blueprint do
   archived { false }
 end
 
+Computer.blueprint do
+end
 

@@ -9,15 +9,22 @@ module Test
   end
 end
 
+class Computer
+  include Mongoid::Document
+  belongs_to_related	:user
+  field :name
+end
+
 class User
   include Mongoid::Document
   
+  #identity :type => String
   field :first_name
   field :year, :type => Date
   field :last_login, :type => Time
   field :computers_number, :type => Integer
   field :archived, :type => Boolean
-  
+
   def self.merge_conditions(*conditions)
     ""
   end
