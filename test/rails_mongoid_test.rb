@@ -94,7 +94,6 @@ describe UsersController do
         end
       end
       visit '/users'
-      save_and_open_page
       first_name_column = all('tbody td[1]').map(&:text)
       first_name_column.map(&:to_i).sum.should == 2
     end

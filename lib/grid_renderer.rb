@@ -289,6 +289,7 @@ module Wice
         :detach_with_id             => nil,
         :filter_all_label           => Defaults::CUSTOM_FILTER_ALL_LABEL,
         :helper_style               => Defaults::HELPER_STYLE,
+        :icon                       => nil,
         :in_csv                     => true,
         :in_html                    => true,
         :model_class                => nil,

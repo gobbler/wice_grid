@@ -116,7 +116,7 @@ module Wice
       if grid.output_buffer
         if grid.output_buffer == true
           raise  WiceGridException.new("Second occurence of grid helper with the same grid object. " +
-                                "Did you intend to use detached filters and forget to define them?")
+                                       "Did you intend to use detached filters and forget to define them?")
         else
           return grid.output_buffer
         end
@@ -199,12 +199,12 @@ module Wice
       buff = GridOutputBuffer.new
 
       buff <<  if rendering.blank_slate_handler.is_a?(Proc)
-        call_block_as_erb_or_ruby(rendering, rendering.blank_slate_handler, nil)
-      elsif rendering.blank_slate_handler.is_a?(Hash)
-        render(rendering.blank_slate_handler)
-      else
-        rendering.blank_slate_handler
-      end
+                 call_block_as_erb_or_ruby(rendering, rendering.blank_slate_handler, nil)
+               elsif rendering.blank_slate_handler.is_a?(Hash)
+                 render(rendering.blank_slate_handler)
+               else
+                 rendering.blank_slate_handler
+               end
 
       if rendering.find_one_for(:in_html){|column| column.detach_with_id}
         buff.stubborn_output_mode = true
@@ -268,10 +268,10 @@ module Wice
       # first row of column labels with sorting links
 
       filter_shown = if options[:show_filters] == :when_filtered
-        grid.filtering_on?
-      elsif options[:show_filters] == :always
-        true
-      end
+                       grid.filtering_on?
+                     elsif options[:show_filters] == :always
+                       true
+                     end
 
       cached_javascript = []
 
@@ -295,28 +295,27 @@ module Wice
             direction = 'desc' if grid.order_direction == 'asc'
           end
 
-          col_link = link_to(
-            column_name,
-            rendering.column_link(column, direction, params, options[:extra_request_parameters]),
-            :class => link_style)
+          col_link = link_to(column_name,
+                             rendering.column_link(column, direction, params, options[:extra_request_parameters]),
+                             :class => link_style)
           content << content_tag(:th, col_link, Hash.make_hash(:class, css_class))
           column.css_class = css_class
         else
           if reuse_last_column_for_filter_buttons && last
             content << content_tag(:th,
-              hide_show_icon(filter_row_id, grid, filter_shown, no_filter_row, options[:show_filters], rendering),
-              :class => 'hide_show_icon'
-            )
+                                   hide_show_icon(filter_row_id, grid, filter_shown, no_filter_row, options[:show_filters], rendering),
+                                   :class => 'hide_show_icon'
+                                   )
           else
-            content << content_tag(:th, column_name)
+            content << content_tag(:th, (column.icon ? image_tag("/images/icons/grid/#{column.icon}", :alt => column_name, :border => 0) : column_name))
           end
         end
       end
 
       content << content_tag(:th,
-        hide_show_icon(filter_row_id, grid, filter_shown, no_filter_row, options[:show_filters], rendering),
-        :class => 'hide_show_icon'
-      ) unless no_rightmost_column
+                             hide_show_icon(filter_row_id, grid, filter_shown, no_filter_row, options[:show_filters], rendering),
+                             :class => 'hide_show_icon'
+                             ) unless no_rightmost_column
 
       content << '</tr>'
       # rendering first row end
@@ -359,9 +358,9 @@ module Wice
             else
               if reuse_last_column_for_filter_buttons && last
                 content << content_tag(:th,
-                  reset_submit_buttons(options, grid, rendering),
-                  Hash.make_hash(:class, column.css_class).add_or_append_class_value!('filter_icons')
-                )
+                                       reset_submit_buttons(options, grid, rendering),
+                                       Hash.make_hash(:class, column.css_class).add_or_append_class_value!('filter_icons')
+                                       )
               else
                 content << content_tag(:th, '', Hash.make_hash(:class, column.css_class))
               end
@@ -402,16 +401,16 @@ module Wice
       grid.each do |ar| # rows
 
         before_row_output = if rendering.before_row_handler
-          call_block_as_erb_or_ruby(rendering, rendering.before_row_handler, ar)
-        else
-          nil
-        end
+                              call_block_as_erb_or_ruby(rendering, rendering.before_row_handler, ar)
+                            else
+                              nil
+                            end
 
         after_row_output = if rendering.after_row_handler
-          call_block_as_erb_or_ruby(rendering, rendering.after_row_handler, ar)
-        else
-          nil
-        end
+                             call_block_as_erb_or_ruby(rendering, rendering.after_row_handler, ar)
+                           else
+                             nil
+                           end
 
         row_content = ''
         rendering.each_column(:in_html) do |column|
@@ -420,23 +419,23 @@ module Wice
           opts = column.td_html_attrs.clone
 
           column_block_output = if column.class == Wice::ActionViewColumn
-            cell_block.call(ar, params)
-          else
-            call_block_as_erb_or_ruby(rendering, cell_block, ar)
-          end
+                                  cell_block.call(ar, params)
+                                else
+                                  call_block_as_erb_or_ruby(rendering, cell_block, ar)
+                                end
 
           if column_block_output.kind_of?(Array)
 
             unless column_block_output.size == 2
               raise WiceGridArgumentError.new('When WiceGrid column block returns an array it is expected to contain 2 elements only - '+
-                'the first is the contents of the table cell and the second is a hash containing HTML attributes for the <td> tag.')
+                                              'the first is the contents of the table cell and the second is a hash containing HTML attributes for the <td> tag.')
             end
 
             column_block_output, additional_opts = column_block_output
 
             unless additional_opts.is_a?(Hash)
               raise WiceGridArgumentError.new('When WiceGrid column block returns an array its second element is expected to be a ' +
-                "hash containing HTML attributes for the <td> tag. The returned value is #{additional_opts.inspect}. Read documentation.")
+                                              "hash containing HTML attributes for the <td> tag. The returned value is #{additional_opts.inspect}. Read documentation.")
             end
 
             additional_css_class = nil
@@ -487,18 +486,18 @@ module Wice
       parameter_name_for_focus = {grid.name => {:foc => ''}}.to_query
 
       prototype_and_js_version_check = if ENV['RAILS_ENV'] == 'development'
-        %$ if (typeof(WiceGridProcessor) == "undefined"){\n$ +
-        %$   alert('wice_grid.js not loaded, WiceGrid cannot proceed! ' +\n$ +
-        %$     'Please make sure that you include WiceGrid javascript in your page. ' +\n$ +
-        %$     'Use <%= include_wice_grid_assets %> or <%= include_wice_grid_assets(:include_calendar => true) %> ' +\n$ +
-        %$     'for WiceGrid javascripts and assets.')\n$ +
-        %$ } else if ((typeof(WiceGridProcessor._version) == "undefined") || ( WiceGridProcessor._version != "0.4.3")) {\n$ +
-        %$    alert("wice_grid.js in your /public is outdated, please run\\n ./script/generate wice_grid_assets_jquery\\n$ +
-        %$ or\\n ./script/generate wice_grid_assets_prototype\\nto update it.");\n$ +
-        %$ }\n$
-      else
-        ''
-      end
+                                         %$ if (typeof(WiceGridProcessor) == "undefined"){\n$ +
+                                           %$   alert('wice_grid.js not loaded, WiceGrid cannot proceed! ' +\n$ +
+                                           %$     'Please make sure that you include WiceGrid javascript in your page. ' +\n$ +
+                                           %$     'Use <%= include_wice_grid_assets %> or <%= include_wice_grid_assets(:include_calendar => true) %> ' +\n$ +
+                                           %$     'for WiceGrid javascripts and assets.')\n$ +
+                                           %$ } else if ((typeof(WiceGridProcessor._version) == "undefined") || ( WiceGridProcessor._version != "0.4.3")) {\n$ +
+                                           %$    alert("wice_grid.js in your /public is outdated, please run\\n ./script/generate wice_grid_assets_jquery\\n$ +
+                                           %$ or\\n ./script/generate wice_grid_assets_prototype\\nto update it.");\n$ +
+                                           %$ }\n$
+                                       else
+                                         ''
+                                       end
 
       if rendering.show_hide_button_present
         cached_javascript << JsAdaptor.show_hide_button_initialization(grid.name, filter_row_id)
@@ -541,21 +540,21 @@ module Wice
       end
 
       content << javascript_tag(
-        JsAdaptor.dom_loaded +
-        %/ #{prototype_and_js_version_check}\n/ +
-        %/ window['#{grid.name}'] = new WiceGridProcessor('#{grid.name}', '#{base_link_for_filter}',\n/ +
-        %/  '#{base_link_for_show_all_records}', '#{link_for_export}', '#{parameter_name_for_query_loading}',\n/ +
-        %/ '#{parameter_name_for_focus}', '#{ENV['RAILS_ENV']}');\n/ +
-        if no_filters_at_all
-          ''
-        else
-          rendering.select_for(:in_html) do |vc|
-            vc.attribute_name and not vc.no_filter
-          end.collect{|column| column.yield_javascript}.join("\n")
-        end +
-        "\n" + cached_javascript.compact.join('') +
-        '})'
-      )
+                                JsAdaptor.dom_loaded +
+                                %/ #{prototype_and_js_version_check}\n/ +
+                                %/ window['#{grid.name}'] = new WiceGridProcessor('#{grid.name}', '#{base_link_for_filter}',\n/ +
+                                %/  '#{base_link_for_show_all_records}', '#{link_for_export}', '#{parameter_name_for_query_loading}',\n/ +
+                                %/ '#{parameter_name_for_focus}', '#{ENV['RAILS_ENV']}');\n/ +
+                                if no_filters_at_all
+                                  ''
+                                else
+                                  rendering.select_for(:in_html) do |vc|
+                                    vc.attribute_name and not vc.no_filter
+                                  end.collect{|column| column.yield_javascript}.join("\n")
+                                end +
+                                "\n" + cached_javascript.compact.join('') +
+                                '})'
+                                )
 
       if content.stubborn_output_mode
         grid.output_buffer = content
@@ -584,25 +583,25 @@ module Wice
         filter_tooltip = WiceGridNlMessageProvider.get_message(:HIDE_FILTER_TOOLTIP)
 
         hide_icon = content_tag(:span,
-          image_tag(Defaults::SHOW_HIDE_FILTER_ICON,
-            :title => filter_tooltip,
-            :alt   => filter_tooltip),
-          :id => grid_name + '_hide_icon',
-          :style => styles[0],
-          :class => 'clickable'
-        )
+                                image_tag(Defaults::SHOW_HIDE_FILTER_ICON,
+                                          :title => filter_tooltip,
+                                          :alt   => filter_tooltip),
+                                :id => grid_name + '_hide_icon',
+                                :style => styles[0],
+                                :class => 'clickable'
+                                )
 
 
         filter_tooltip = WiceGridNlMessageProvider.get_message(:SHOW_FILTER_TOOLTIP)
 
         show_icon = content_tag(:span,
-          image_tag(Defaults::SHOW_HIDE_FILTER_ICON,
-            :title => filter_tooltip,
-            :alt   => filter_tooltip),
-          :id => grid_name + '_show_icon',
-          :style => styles[1],
-          :class => 'clickable'
-        )
+                                image_tag(Defaults::SHOW_HIDE_FILTER_ICON,
+                                          :title => filter_tooltip,
+                                          :alt   => filter_tooltip),
+                                :id => grid_name + '_show_icon',
+                                :style => styles[1],
+                                :class => 'clickable'
+                                )
 
         hide_icon + show_icon
       end
@@ -610,19 +609,19 @@ module Wice
 
     def reset_submit_buttons(options, grid, rendering)  #:nodoc:
       (if options[:hide_submit_button]
-        ''
-      else
-        rendering.submit_button_present = true
-        filter_tooltip = WiceGridNlMessageProvider.get_message(:FILTER_TOOLTIP)
-        image_tag(Defaults::FILTER_ICON, :title => filter_tooltip, :alt => filter_tooltip, :class => 'submit clickable')
-      end + ' ' +
-      if options[:hide_reset_button]
-        ''
-      else
-        rendering.reset_button_present = true
-        filter_tooltip = WiceGridNlMessageProvider.get_message(:RESET_FILTER_TOOLTIP)
-        image_tag(Defaults::RESET_ICON, :title => filter_tooltip, :alt => filter_tooltip, :class => 'reset clickable')
-      end).html_safe_if_necessary
+         ''
+       else
+         rendering.submit_button_present = true
+         filter_tooltip = WiceGridNlMessageProvider.get_message(:FILTER_TOOLTIP)
+         image_tag(Defaults::FILTER_ICON, :title => filter_tooltip, :alt => filter_tooltip, :class => 'submit clickable')
+       end + ' ' +
+       if options[:hide_reset_button]
+         ''
+       else
+         rendering.reset_button_present = true
+         filter_tooltip = WiceGridNlMessageProvider.get_message(:RESET_FILTER_TOOLTIP)
+         image_tag(Defaults::RESET_ICON, :title => filter_tooltip, :alt => filter_tooltip, :class => 'reset clickable')
+       end).html_safe_if_necessary
     end
 
     # Renders a detached filter. The parameters are:
@@ -637,7 +636,7 @@ module Wice
       end
       if grid.output_buffer == true
         raise WiceGridArgumentError.new("grid_filter: You have defined no detached filters, or you try use detached filters with" +
-          ":show_filters => :no (set :show_filters to :always in this case). Read about detached filters in the documentation.")
+                                        ":show_filters => :no (set :show_filters to :always in this case). Read about detached filters in the documentation.")
       end
 
       content_tag :span, grid.output_buffer.filter_for(filter_key), :class => "#{grid.name}_detached_filter"
@@ -708,13 +707,14 @@ module Wice
       end
 
       html, js = pagination_info(grid, allow_showing_all_records)
+      '<div class="pagination_status">' + html + '</div>'
 
-#       [will_paginate(grid.resultset,
-#         :previous_label => WiceGridNlMessageProvider.get_message(:PREVIOUS_LABEL),
-#         :next_label     => WiceGridNlMessageProvider.get_message(:NEXT_LABEL),
-#         :param_name     => "#{grid.name}[page]",
-#         :params         => extra_request_parameters).to_s +
-#         (' <div class="pagination_status">' + html + '</div>').html_safe_if_necessary, js]
+      #       [will_paginate(grid.resultset,
+      #         :previous_label => WiceGridNlMessageProvider.get_message(:PREVIOUS_LABEL),
+      #         :next_label     => WiceGridNlMessageProvider.get_message(:NEXT_LABEL),
+      #         :param_name     => "#{grid.name}[page]",
+      #         :params         => extra_request_parameters).to_s +
+      #         (' <div class="pagination_status">' + html + '</div>').html_safe_if_necessary, js]
     end
 
 
@@ -747,36 +747,9 @@ module Wice
     end
 
     def pagination_info(grid, allow_showing_all_records)  #:nodoc:
-#fix-this, may be More buttons rather than pagionation (since we have filters)
-#       collection = grid.resultset
-
-#       collection_total_entries = collection.total_entries
-#       collection_total_entries_str = collection_total_entries.to_s
-#       parameters = grid.get_state_as_parameter_value_pairs
-
-#       js = ''
-#       html = if (collection.total_pages < 2 && collection.length == 0)
-#         '0'
-#       else
-#         parameters << ["#{grid.name}[pp]", collection_total_entries_str]
-
-#         "#{collection.offset + 1}-#{collection.offset + collection.length} / #{collection_total_entries_str} " +
-#           if (! allow_showing_all_records) || collection_total_entries <= collection.length
-#             ''
-#           else
-#             res, js = show_all_link(collection_total_entries, parameters, grid.name)
-#             res
-#           end
-#       end +
-#       if grid.all_record_mode?
-#         res, js = back_to_pagination_link(parameters, grid.name)
-#         res
-#       else
-#         ''
-#       end
-
-#       [html, js]
-      ["", ""]
+      total = grid.resultset.count
+      shown = [total, grid.status[:per_page].to_i].min
+      ["#{shown} of #{total}", ""]
     end
 
   end
