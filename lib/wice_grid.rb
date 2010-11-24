@@ -168,6 +168,13 @@ module Wice
       @criteria_formed = false
     end
 
+    def has_any_filter_criteria?
+      @has_any_filter_criteria
+    end
+    
+    def has_more_to_show?
+      @status[:per_page].to_i < resultset.count
+    end
     # A block executed from within the plugin to process records of the current page.
     # The argument to the callback is the array of the records. See the README for more details.
     def with_paginated_resultset(&callback)

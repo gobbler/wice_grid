@@ -476,7 +476,7 @@ module Wice
 
       content << '</tbody></table></div>'
       
-      content << link_to( "More", rendering.more_link(controller, options[:extra_request_parameters]))
+      content << link_to( "More &#x25BC;".html_safe, rendering.more_link(controller, options[:extra_request_parameters]), :id => 'more') if grid.has_more_to_show?
 
       base_link_for_filter, base_link_for_show_all_records = rendering.base_link_for_filter(controller, options[:extra_request_parameters])
 
@@ -747,9 +747,14 @@ module Wice
     end
 
     def pagination_info(grid, allow_showing_all_records)  #:nodoc:
-      total = grid.resultset.count
-      shown = [total, grid.status[:per_page].to_i].min
-      ["#{shown} of #{total}", ""]
+      found = grid.resultset.count
+      total = grid.klass.count
+      shown = [found, grid.status[:per_page].to_i].min
+      summary = ""
+      summary << "Shown: #{shown}"
+      summary << ", Found: #{found}" if grid.has_any_filter_criteria?
+      summary << ", Total: #{total}"
+      [summary, ""]
     end
 
   end

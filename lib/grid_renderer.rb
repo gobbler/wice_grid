@@ -453,6 +453,7 @@ module Wice
 
       if new_params[@grid.name]
         new_params[@grid.name].delete(:page) # we reset paging here
+        new_params[@grid.name].delete(:per_page) # we reset paging here
         new_params[@grid.name].delete(:f)    # no filter for the base url
         new_params[@grid.name].delete(:foc)  # nullify the focus
         new_params[@grid.name].delete(:q)    # and no request for the saved query
