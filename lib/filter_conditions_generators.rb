@@ -91,7 +91,7 @@ module Wice
 
   class FilterConditionsGeneratorInteger < FilterConditionsGenerator  #:nodoc:
     @@handled_type[Integer] = self
-#    @@handled_type[Float]   = self
+    @@handled_type[Float]   = self
 #    @@handled_type[BigDecimal] = self
 
     def  generate_conditions(opts)   #:nodoc:

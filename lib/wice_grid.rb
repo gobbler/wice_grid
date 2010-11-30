@@ -55,7 +55,7 @@ module Wice
       @controller = controller
 
       unless klass.kind_of?(Class) && klass.ancestors.index(Mongoid::Document)
-        raise WiceGridArgumentError.new("ActiveRecord model class (second argument) must be a Class derived from Mongoid::Document")
+        raise WiceGridArgumentError.new("The model class (second argument) must be a Class derived from Mongoid::Document")
       end
       # validate :with_resultset & :with_paginated_resultset
       [:with_resultset, :with_paginated_resultset].each do |callback_symbol|
@@ -256,7 +256,7 @@ module Wice
     # Getters
 
     def filter_params(view_column)  #:nodoc:
-      return @status[:f][view_column.attribute_name] if @status[:f]
+      return (@status[:f][view_column.attribute_name] || {}) if @status[:f]
       {}
     end
 
