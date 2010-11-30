@@ -1,1 +1,8 @@
 .DS_Store
+GPATH
+GRTAGS
+GSYMS
+GTAGS
+cand
+doc/
+log/
