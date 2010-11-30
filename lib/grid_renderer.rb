@@ -7,8 +7,15 @@ module Wice
     include ActionView::Helpers::TextHelper
     include ActionView::Helpers::AssetTagHelper
     include ActionView::Helpers::JavaScriptHelper
-    include ::WillPaginate::ViewHelpers
-
+    
+    def config
+      ActionController::Base.config
+    end
+    
+    def controller
+      @grid.controller
+    end
+    
     attr_reader :page_parameter_name
     attr_reader :after_row_handler
     attr_reader :before_row_handler
@@ -32,7 +39,7 @@ module Wice
     end
 
     def add_column(vc)  #:nodoc:
-      @columns_table[vc.fully_qualified_attribute_name] = vc if vc.attribute_name
+      @columns_table[vc.attribute_name] = vc if vc.attribute_name
       @columns << vc
     end
 
@@ -40,6 +47,10 @@ module Wice
       @columns_table[k]
     end
 
+    def output_csv?
+      return grid.output_csv?
+    end
+    
     def number_of_columns(filter = nil)  #:nodoc:
       filter_columns(filter).size
     end
@@ -282,6 +293,7 @@ module Wice
         :detach_with_id             => nil,
         :filter_all_label           => Defaults::CUSTOM_FILTER_ALL_LABEL,
         :helper_style               => Defaults::HELPER_STYLE,
+        :icon                       => nil,
         :in_csv                     => true,
         :in_html                    => true,
         :model_class                => nil,
@@ -323,10 +335,8 @@ module Wice
 
       klass = ViewColumn
       if options[:attribute_name] &&
-          col_type_and_table_name = @grid.declare_column(options[:attribute_name], options[:model_class],
-            options[:custom_filter],  options[:table_alias])
-
-        db_column, table_name, main_table = col_type_and_table_name
+          col_type_and_table_name = @grid.declare_column(options[:attribute_name], options[:custom_filter])
+        db_column, table_name, is_main_table = col_type_and_table_name
         col_type = db_column.type
 
         if options[:custom_filter]
@@ -370,7 +380,7 @@ module Wice
         end # custom_filter
       end # attribute_name
 
-      vc = klass.new(block, options, @grid, table_name, main_table, custom_filter, @view)
+      vc = klass.new(block, options, @grid, table_name, is_main_table, custom_filter, @view)
 
       vc.negation    = options[:negation_in_filter] if vc.respond_to? :negation=
 
@@ -447,18 +457,19 @@ module Wice
 
       if new_params[@grid.name]
         new_params[@grid.name].delete(:page) # we reset paging here
+        new_params[@grid.name].delete(:per_page) # we reset paging here
         new_params[@grid.name].delete(:f)    # no filter for the base url
         new_params[@grid.name].delete(:foc)  # nullify the focus
         new_params[@grid.name].delete(:q)    # and no request for the saved query
       end
 
-      new_params[:only_path] = false
-      base_link_with_pp_info = controller.url_for(new_params).gsub(/\?+$/,'')
+      new_params[:only_path] = true
+      base_link_with_pp_info = controller.send( :url_for, new_params).gsub(/\?+$/,'')
 
       if new_params[@grid.name]
         new_params[@grid.name].delete(:pp)    # and reset back to pagination if show all mode is on
       end
-      [base_link_with_pp_info, controller.url_for(new_params).gsub(/\?+$/,'')]
+      [base_link_with_pp_info, controller.send(:url_for, new_params).gsub(/\?+$/,'')]
     end
 
 
@@ -470,18 +481,23 @@ module Wice
       new_params[@grid.name] = {} unless new_params[@grid.name]
       new_params[@grid.name][:export] = format
 
-      new_params[:only_path] = false
-      controller.url_for(new_params)
+      new_params[:only_path] = true
+      controller.send(:url_for, new_params)
     end
 
+    def more_link(controller, extra_parameters)
+      new_params = controller.params.deep_clone_yl
+      new_params.merge!(extra_parameters)
+
+      new_params[@grid.name] = {} unless new_params[@grid.name]
+      new_params[@grid.name][:per_page] = @grid.status[:per_page].to_i + (@grid.options[:per_page] || Defaults::PER_PAGE)
+      new_params[:only_path] = true
+
+      controller.send(:url_for, new_params)
+    end
 
     def column_link(column, direction, params, extra_parameters = {})   #:nodoc:
-
-      column_attribute_name = if column.attribute_name.index('.') or column.main_table
-        column.attribute_name
-      else
-        column.table_alias_or_table_name + '.' + column.attribute_name
-      end
+      column_attribute_name =  column.attribute_name
 
       query_params = {@grid.name => {
         @@order_parameter_name => column_attribute_name,

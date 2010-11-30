@@ -8,7 +8,7 @@ module Wice
     include ActionView::Helpers::AssetTagHelper
 
     # fields defined from the options parameter
-    FIELDS = [:attribute_name, :column_name, :td_html_attrs, :no_filter, :model_class, :allow_multiple_selection,
+    FIELDS = [:attribute_name, :column_name, :icon, :td_html_attrs, :no_filter, :model_class, :allow_multiple_selection,
               :in_html, :in_csv, :helper_style, :table_alias, :custom_order, :detach_with_id, :allow_ordering, :auto_reload]
 
     attr_accessor *FIELDS
@@ -26,7 +26,7 @@ module Wice
       @view = view
 
       FIELDS.each do |field|
-        self.send(field.to_s + '=', options[field])
+        self.send("#{field}=", options[field])
       end
     end
 
@@ -58,6 +58,15 @@ module Wice
       end
     end
 
+
+    def config
+      @view.config
+    end
+
+    def controller
+      @view.controller
+    end
+
     def render_filter #:nodoc:
       params = @grid.filter_params(self)
       res = render_filter_internal(params)
@@ -76,16 +85,6 @@ module Wice
       return query, query_without_equals_sign, parameter_name, dom_id.tr('.', '_')
     end
 
-    # bad name, because for the main table the name is not really 'fully_qualified'
-    def attribute_name_fully_qualified_for_all_but_main_table_columns #:nodoc:
-      self.main_table ? attribute_name : table_alias_or_table_name + '.' + attribute_name
-    end
-
-    def fully_qualified_attribute_name #:nodoc:
-      table_alias_or_table_name + '.' + attribute_name
-    end
-
-
     def filter_shown? #:nodoc:
       self.attribute_name && ! self.no_filter
     end
@@ -93,12 +92,7 @@ module Wice
     def filter_shown_in_main_table? #:nodoc:
       filter_shown? && ! self.detach_with_id
     end
-
-
-    def table_alias_or_table_name  #:nodoc:
-      table_alias || table_name
-    end
-
+    
     def capable_of_hosting_filter_related_icons?  #:nodoc:
       self.attribute_name.blank? && self.column_name.blank? && ! self.filter_shown?
     end
@@ -122,7 +116,7 @@ module Wice
     protected
 
     def form_parameter_template(v) #:nodoc:
-      {@grid.name => {:f => {self.attribute_name_fully_qualified_for_all_but_main_table_columns => v}}}.to_query
+      {@grid.name => {:f => {self.attribute_name => v}}}.to_query
     end
 
     def form_parameter_name(v) #:nodoc:
@@ -185,7 +179,7 @@ module Wice
   end
 
   class ViewColumnInteger < ViewColumn #:nodoc:
-    @@handled_type[:integer] = self
+    @@handled_type[Integer] = self
 
     def render_filter_internal(params) #:nodoc:
       @contains_a_text_input = true
@@ -216,8 +210,8 @@ module Wice
   end
 
   class ViewColumnFloat < ViewColumnInteger #:nodoc:
-    @@handled_type[:decimal] = self
-    @@handled_type[:float] = self
+    @@handled_type[BigDecimal] = self
+    @@handled_type[Float] = self
   end
 
   class ViewColumnCustomDropdown < ViewColumn #:nodoc:
@@ -277,7 +271,7 @@ module Wice
   end
 
   class ViewColumnBoolean < ViewColumnCustomDropdown #:nodoc:
-    @@handled_type[:boolean] = self
+    @@handled_type[Boolean] = self
     include ActionView::Helpers::FormOptionsHelper
 
     attr_accessor :boolean_filter_true_label, :boolean_filter_false_label
@@ -292,8 +286,8 @@ module Wice
   end
 
   class ViewColumnDatetime < ViewColumn #:nodoc:
-    @@handled_type[:datetime] = self
-    @@handled_type[:timestamp] = self
+    @@handled_type[DateTime] = self
+    @@handled_type[Time] = self
     include ActionView::Helpers::DateHelper
     include Wice::JsCalendarHelpers
 
@@ -371,7 +365,7 @@ module Wice
   end
 
   class ViewColumnDate < ViewColumnDatetime #:nodoc:
-    @@handled_type[:date] = self
+    @@handled_type[Date] = self
 
     @@datetime_chunk_names = %w(year month day)
 
@@ -413,8 +407,8 @@ module Wice
   end
 
   class ViewColumnString < ViewColumn #:nodoc:
-    @@handled_type[:string] = self
-    @@handled_type[:text] = self
+    @@handled_type[String] = self
+#    @@handled_type[:text] = self
 
     attr_accessor :negation, :auto_reloading_input_with_negation_checkbox
 
