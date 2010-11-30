@@ -81,7 +81,7 @@ Gem::Specification.new do |s|
      "test/wice_grid_test.rb",
      "test/wice_grid_view_helper_test.rb",
      "uninstall.rb",
-     "wice_grid.gemspec"
+     "wice_grid_mongoid.gemspec"
   ]
   s.homepage = %q{http://github.com/afurmanov/wice_grid}
   s.rdoc_options = ["--charset=UTF-8"]
