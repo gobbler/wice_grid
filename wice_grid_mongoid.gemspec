@@ -4,14 +4,14 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{wice_grid}
+  s.name = %q{wice_grid_mongoid}
   s.version = "0.5.6"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Yuri Leikind"]
-  s.date = %q{2010-11-04}
+  s.authors = ["Yuri Leikind", "Aleksandr Furmanov"]
+  s.date = %q{2010-11-30}
   s.description = %q{A Rails grid plugin to create grids with sorting, pagination, and (automatically generated) filters }
-  s.email = %q{yuri.leikind@gmail.com}
+  s.email = ["yuri.leikind@gmail.com", "aleksandr.furmanov@gmail.com"]
   s.extra_rdoc_files = [
     "README.rdoc"
   ]
@@ -53,7 +53,6 @@ Gem::Specification.new do |s|
      "lib/helpers/wice_grid_misc_view_helpers.rb",
      "lib/helpers/wice_grid_serialized_queries_view_helpers.rb",
      "lib/helpers/wice_grid_view_helpers.rb",
-     "lib/helpers/will_paginate_link_renderer.rb",
      "lib/js_adaptors/jquery_adaptor.rb",
      "lib/js_adaptors/js_adaptor.rb",
      "lib/js_adaptors/prototype_adaptor.rb",
@@ -81,9 +80,10 @@ Gem::Specification.new do |s|
      "test/wice_grid_misc_test.rb",
      "test/wice_grid_test.rb",
      "test/wice_grid_view_helper_test.rb",
-     "uninstall.rb"
+     "uninstall.rb",
+     "wice_grid.gemspec"
   ]
-  s.homepage = %q{http://github.com/lekind/wice_grid}
+  s.homepage = %q{http://github.com/afurmanov/wice_grid}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.7}
@@ -103,12 +103,9 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_development_dependency(%q<will_paginate>, [">= 2.3.2"])
     else
-      s.add_dependency(%q<will_paginate>, [">= 2.3.2"])
     end
   else
-    s.add_dependency(%q<will_paginate>, [">= 2.3.2"])
   end
 end
 
