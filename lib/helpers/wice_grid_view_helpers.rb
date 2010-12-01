@@ -284,13 +284,13 @@ module Wice
         end
 
         if column.attribute_name && column.allow_ordering
-
-          css_class = grid.filtered_by?(column) ? 'active_filter' : nil
-
+          css_class = []
+          css_class << 'active_filter' if grid.filtered_by?(column)
+          css_class << column.th_class if column.th_class
           direction = 'asc'
           link_style = nil
           if grid.ordered_by?(column)
-            css_class = css_class.nil? ? 'sorted' : css_class + ' sorted'
+            css_class << 'sorted'
             link_style = grid.order_direction
             direction = 'desc' if grid.order_direction == 'asc'
           end
@@ -298,6 +298,8 @@ module Wice
           col_link = link_to(column_name,
                              rendering.column_link(column, direction, params, options[:extra_request_parameters]),
                              :class => link_style)
+          col_link << content_tag(:p, column.subtitle) if column.subtitle
+          css_class = css_class.join(' ')
           content << content_tag(:th, col_link, Hash.make_hash(:class, css_class))
           column.css_class = css_class
         else

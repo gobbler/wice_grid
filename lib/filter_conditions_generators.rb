@@ -93,6 +93,7 @@ module Wice
     @@handled_type[Integer] = self
     @@handled_type[Float]   = self
 #    @@handled_type[BigDecimal] = self
+    VALID_NUMBER_RE = /(\d+)((G|M|K)B?)?/i
 
     def  generate_conditions(opts)   #:nodoc:
       unless opts.kind_of? Hash
@@ -100,15 +101,28 @@ module Wice
         return false
       end
 
-      if !opts[:fr] || !(opts[:fr] =~ /\d/) || !opts[:to] || !(opts[:to] =~ /\d/)
+      if !opts[:fr] || !(opts[:fr] =~ VALID_NUMBER_RE) || !opts[:to] || !(opts[:to] =~ VALID_NUMBER_RE)
         Wice.log "invalid parameters for the grid integer filter - either range limits are not supplied or they are not numeric"
         return false
       end
-
-      @criteria.where(@field.name.to_sym.gt => opts[:fr].to_i)
-      @criteria.where(@field.name.to_sym.lt => opts[:to].to_i)
+      from = parse_number(opts[:fr])
+      to = parse_number(opts[:to])
+      @criteria.where(@field.name.to_sym.gt => from)
+      @criteria.where(@field.name.to_sym.lt => to)
 
       return true
+    end
+    
+    private
+    def parse_number(num_str)
+      match_data = VALID_NUMBER_RE.match(num_str)
+      num = match_data[1].to_i
+      num = case match_data[3].downcase
+            when 'g': num * 1024*1024*1024
+            when 'm': num * 1024*1024
+            when 'k': num * 1024
+            end if match_data.size > 3
+      num
     end
   end
 

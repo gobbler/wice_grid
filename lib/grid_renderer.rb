@@ -294,6 +294,8 @@ module Wice
         :filter_all_label           => Defaults::CUSTOM_FILTER_ALL_LABEL,
         :helper_style               => Defaults::HELPER_STYLE,
         :icon                       => nil,
+        :th_class                   => nil,
+        :subtitle                   => nil,
         :in_csv                     => true,
         :in_html                    => true,
         :model_class                => nil,
