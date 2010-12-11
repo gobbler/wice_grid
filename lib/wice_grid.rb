@@ -45,7 +45,7 @@ module Wice
   class WiceGrid
 
     attr_reader :klass, :name, :resultset, :custom_order, :query_store_model, :options, :controller
-    attr_reader :ar_options, :status, :export_to_csv_enabled, :csv_file_name, :saved_query
+    attr_reader :ar_options, :status, :export_to_csv_enabled, :csv_file_name, :saved_query, :extra_filter
     attr_writer :renderer
     attr_accessor :output_buffer, :view_helper_finished, :csv_tempfile
 
@@ -134,6 +134,11 @@ module Wice
       @criteria_formed = false
     end
 
+    def add_criteria(extra)
+      @extra_filter = extra
+      @criteria.merge(extra)
+    end
+    
     def has_any_filter_criteria?
       @has_any_filter_criteria
     end

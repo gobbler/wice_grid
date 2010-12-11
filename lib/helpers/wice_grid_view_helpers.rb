@@ -750,7 +750,7 @@ module Wice
 
     def pagination_info(grid, allow_showing_all_records)  #:nodoc:
       found = grid.resultset.count
-      total = grid.klass.count
+      total = grid.extra_filter.count
       shown = [found, grid.status[:per_page].to_i].min
       summary = ""
       summary << "Shown: #{shown}"
