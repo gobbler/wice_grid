@@ -83,6 +83,13 @@ module Wice
         Wice.log "invalid parameters for the grid string filter - empty string"
         return false
       end
+      if string_fragment.starts_with?('/')
+        string_fragment = string_fragment[1..-1]
+      else
+        special_chars = '|()[]{}+\^$*?.'
+        string_fragment = string_fragment.gsub( /([\|\(\)\[\]\{\}\+\^\\\$\*\?\.])/ )  { |s| '\\' + s}
+      end
+        
       @criteria.where(@field.name.to_s => /#{string_fragment}/)
       return true
     end
@@ -121,7 +128,7 @@ module Wice
             when 'g': num * 1024*1024*1024
             when 'm': num * 1024*1024
             when 'k': num * 1024
-            end if match_data.size > 3
+            end if match_data[3]
       num
     end
   end

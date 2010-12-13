@@ -24,6 +24,7 @@ class User
   field :last_login, :type => Time
   field :computers_number, :type => Integer
   field :archived, :type => Boolean
+  field :storage_limit, :type => Integer
 
   def self.merge_conditions(*conditions)
     ""
