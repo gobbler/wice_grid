@@ -114,8 +114,8 @@ module Wice
       end
       from = parse_number(opts[:fr])
       to = parse_number(opts[:to])
-      @criteria.where(@field.name.to_sym.gt => from)
-      @criteria.where(@field.name.to_sym.lt => to)
+      @criteria.where(@field.name.to_sym.gte => from)
+      @criteria.where(@field.name.to_sym.lte => to)
 
       return true
     end
@@ -139,8 +139,8 @@ module Wice
     @@handled_type[Time] = self
 
     def generate_conditions(opts)   #:nodoc:
-      @criteria.where(@field.name.to_sym.gt => opts[:fr]) if opts[:fr]
-      @criteria.where(@field.name.to_sym.lt => opts[:to]) if opts[:to]
+      @criteria.where(@field.name.to_sym.gte => opts[:fr]) if opts[:fr]
+      @criteria.where(@field.name.to_sym.lte => opts[:to]) if opts[:to]
       opts[:fr] || opts[:to]
     end
   end

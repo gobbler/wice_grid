@@ -261,8 +261,8 @@ module Wice
     # Getters
 
     def filter_params(view_column)  #:nodoc:
-      return (@status[:f][view_column.attribute_name] || {}) if @status[:f]
-      {}
+      return (@status[:f][view_column.attribute_name] || "") if @status[:f]
+      ""
     end
 
     def resultset  #:nodoc:

@@ -142,6 +142,7 @@ module Wice
       self.td_html_attrs.add_or_append_class_value!('sel')
       grid_name             = self.grid.name
       @param_name           = param_name
+      debugger
       @cell_rendering_block = lambda do |object, params|
         selected = if params[grid_name] && params[grid_name][param_name] &&
                       params[grid_name][param_name].index(object.send(object_property).to_s)
