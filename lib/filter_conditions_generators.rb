@@ -90,7 +90,7 @@ module Wice
         string_fragment = string_fragment.gsub( /([\|\(\)\[\]\{\}\+\^\\\$\*\?\.])/ )  { |s| '\\' + s}
       end
         
-      @criteria.where(@field.name.to_s => /#{string_fragment}/)
+      @criteria.where(@field.name.to_s => /#{string_fragment}/i)
       return true
     end
 
