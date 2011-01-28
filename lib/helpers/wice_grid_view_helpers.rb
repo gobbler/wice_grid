@@ -401,7 +401,6 @@ module Wice
       previous_cell_value_of_the_ordered_column = nil
 
       grid.each do |ar| # rows
-
         before_row_output = if rendering.before_row_handler
                               call_block_as_erb_or_ruby(rendering, rendering.before_row_handler, ar)
                             else

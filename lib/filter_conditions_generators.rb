@@ -60,7 +60,7 @@ module Wice
         Wice.log "invalid parameters for the grid boolean filter - must be an one item array: #{opts.inspect}"
         return false
       end
-      @criteria.where(@field.name.to_s => opts[0] == 't' ? true : false)
+      @criteria.where(opts[0] == 't' ? {@field.name => true} : {@field.name.to_sym.ne => true})
       return true
     end
   end
