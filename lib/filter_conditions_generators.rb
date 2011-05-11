@@ -15,43 +15,44 @@ module Wice
     end
   end
 
-#   class FilterConditionsGeneratorCustomFilter < FilterConditionsGenerator #:nodoc:
+  class FilterConditionsGeneratorCustomFilter < FilterConditionsGenerator #:nodoc:
 
-#     def generate_conditions(opts)   #:nodoc:
-#       if opts.empty?
-#         Wice.log "empty parameters for the grid custom filter"
-#         return false
-#       end
-#       opts = (opts.kind_of?(Array) && opts.size == 1) ? opts[0] : opts
+    def generate_conditions(opts)   #:nodoc:
+      return false # should be implemented
+      #       if opts.empty?
+      #         Wice.log "empty parameters for the grid custom filter"
+      #         return false
+      #       end
+      #       opts = (opts.kind_of?(Array) && opts.size == 1) ? opts[0] : opts
 
-#       if opts.kind_of?(Array)
-#         opts_with_special_values, normal_opts = opts.partition{|v| ::Wice::GridTools.special_value(v)}
+      #       if opts.kind_of?(Array)
+      #         opts_with_special_values, normal_opts = opts.partition{|v| ::Wice::GridTools.special_value(v)}
 
-#         conditions_ar = if normal_opts.size > 0
-#           [" #{@field.alias_or_table_name(table_alias)}.#{@field.name} IN ( " + (['?'] * normal_opts.size).join(', ') + ' )'] + normal_opts
-#         else
-#           []
-#         end
+      #         conditions_ar = if normal_opts.size > 0
+      #           [" #{@field.alias_or_table_name(table_alias)}.#{@field.name} IN ( " + (['?'] * normal_opts.size).join(', ') + ' )'] + normal_opts
+      #         else
+      #           []
+      #         end
 
-#         if opts_with_special_values.size > 0
-#           special_conditions = opts_with_special_values.collect{|v| " #{@field.alias_or_table_name(table_alias)}.#{@field.name} is " + v}.join(' or ')
-#           if conditions_ar.size > 0
-#             conditions_ar[0] = " (#{conditions_ar[0]} or #{special_conditions} ) "
-#           else
-#             conditions_ar = " ( #{special_conditions} ) "
-#           end
-#         end
-#         conditions_ar
-#       else
-#         if ::Wice::GridTools.special_value(opts)
-#           " #{@field.alias_or_table_name(table_alias)}.#{@field.name} is " + opts
-#         else
-#           [" #{@field.alias_or_table_name(table_alias)}.#{@field.name} = ?", opts]
-#         end
-#       end
-#     end
-
-#   end
+      #         if opts_with_special_values.size > 0
+      #           special_conditions = opts_with_special_values.collect{|v| " #{@field.alias_or_table_name(table_alias)}.#{@field.name} is " + v}.join(' or ')
+      #           if conditions_ar.size > 0
+      #             conditions_ar[0] = " (#{conditions_ar[0]} or #{special_conditions} ) "
+      #           else
+      #             conditions_ar = " ( #{special_conditions} ) "
+      #           end
+      #         end
+      #         conditions_ar
+      #       else
+      #         if ::Wice::GridTools.special_value(opts)
+      #           " #{@field.alias_or_table_name(table_alias)}.#{@field.name} is " + opts
+      #         else
+      #           [" #{@field.alias_or_table_name(table_alias)}.#{@field.name} = ?", opts]
+      #         end
+      #       end
+    end
+    
+  end
 
   class FilterConditionsGeneratorBoolean < FilterConditionsGenerator  #:nodoc:
     @@handled_type[Boolean] = self

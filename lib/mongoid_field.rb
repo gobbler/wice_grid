@@ -10,14 +10,29 @@ module Wice
       # Preprocess incoming parameters for datetime, if what's coming in is
       # a datetime (with custom_filter it can be anything else, and not
       # the datetime hash {"fr" => ..., "to" => ...})
-      if (self.type == Time) && request_params.is_a?(Hash)
-        ["fr", "to"].each do |sym|
-          if request_params[sym]
-            if request_params[sym].is_a?(String)
-              request_params[sym] = Time.parse(Wice::Defaults::DATETIME_PARSER.call(request_params[sym]).to_s)
-            elsif request_params[sym].is_a?(Hash)
-              request_params[sym] = Time.parse(::Wice::GridTools.params_2_datetime(request_params[sym]).to_s)
+      if (self.type == Time) 
+        if request_params.is_a?(Hash)
+          ["fr", "to"].each do |sym|
+            if request_params[sym]
+              if request_params[sym].is_a?(String)
+                request_params[sym] = Time.parse(Wice::Defaults::DATETIME_PARSER.call(request_params[sym]).to_s)
+              elsif request_params[sym].is_a?(Hash)
+                request_params[sym] = Time.parse(::Wice::GridTools.params_2_datetime(request_params[sym]).to_s)
+              end
             end
+          end
+        elsif request_params.is_a?(Array) && request_params.size == 1
+          ago = request_params.first
+          today = Time.now.beginning_of_day
+          agos = {'1 day' => today - 24.hours,
+            '1 week' => today - 7.days,
+            '1 month' => today - 1.month,
+            'ever' => Time.parse("2000-01-01")}
+          if agos.keys.include?(ago)
+            request_params = {}
+            #regular filtering viea 'fr', 'to' field
+            request_params[:fr] = agos[ago] 
+            custom_filter_active = nil
           end
         end
       end
