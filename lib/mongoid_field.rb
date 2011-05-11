@@ -3,9 +3,9 @@ require 'filter_conditions_generators'
 module Wice
   # to be mixed in into Mongoid::Field
   module MongoidField
-    def wice_add_filter_criteria(all_filter_params, criteria, custom_filter_active)  #:nodoc:
+    def wice_add_filter_criteria(all_filter_params, klass, custom_filter_active)  #:nodoc:
       request_params = all_filter_params ? all_filter_params[name] : nil
-      return nil unless request_params
+      return [nil,nil] unless request_params
 
       # Preprocess incoming parameters for datetime, if what's coming in is
       # a datetime (with custom_filter it can be anything else, and not
@@ -41,9 +41,11 @@ module Wice
       processor_klass = ::Wice::FilterConditionsGenerator.handled_type[self.type] unless processor_klass
       unless processor_klass
         Wice.log("No processor for database type #{self.type}!!!")
-        return nil
+        return [nil,nil]
       end
-      processor_klass.new(self, criteria).generate_conditions(request_params)
+      processor = processor_klass.new(self, klass)
+      added = processor.generate_conditions(request_params)
+      [added, processor.criteria]
     end
 
   end

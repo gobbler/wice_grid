@@ -136,7 +136,7 @@ module Wice
 
     def add_criteria(extra)
       @extra_filter = extra
-      @criteria.merge(extra)
+      @criteria = @criteria.merge(extra)
     end
     
     def has_any_filter_criteria?
@@ -197,7 +197,9 @@ module Wice
       field = @klass.fields[field_name]
       raise WiceGridArgumentError.new("Model #{@klass.name} does not have field '#{field_name}'.! ") unless field
 
-      criteria_added = field.wice_add_filter_criteria(@status[:f], @criteria, custom_filter_active)
+      criteria_added, criteria = field.wice_add_filter_criteria(@status[:f], @klass, custom_filter_active)
+      @criteria = @criteria.merge(criteria) if criteria
+      
       @status[:f].delete(field_name) if @status[:f] && !criteria_added
 
       @has_any_filter_criteria ||= criteria_added
@@ -223,7 +225,7 @@ module Wice
 
       if !opts[:skip_ordering] && @status[:order]
         order_by = @status[:order].to_sym.send( @status[:order_direction].to_sym )
-        @criteria.order_by(order_by)
+        @criteria = @criteria.order_by(order_by)
       end
 
       @criteria.limit(@status[:per_page].to_i)

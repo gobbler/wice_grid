@@ -2,11 +2,12 @@ module Wice
   class FilterConditionsGenerator   #:nodoc:
 
     cattr_accessor :handled_type
+    attr_reader    :criteria
     @@handled_type = HashWithIndifferentAccess.new
 
-    def initialize(field, criteria)   #:nodoc:
+    def initialize(field, klass)   #:nodoc:
       @field = field
-      @criteria = criteria
+      @criteria = Mongoid::Criteria.new(klass)
     end
     
     def generate_conditions(opts)
@@ -60,7 +61,7 @@ module Wice
         Wice.log "invalid parameters for the grid boolean filter - must be an one item array: #{opts.inspect}"
         return false
       end
-      @criteria.where(opts[0] == 't' ? {@field.name => true} : {@field.name.to_sym.ne => true})
+      @criteria = @criteria.where(opts[0] == 't' ? {@field.name => true} : {@field.name.to_sym.ne => true})
       return true
     end
   end
@@ -90,7 +91,7 @@ module Wice
         string_fragment = string_fragment.gsub( /([\|\(\)\[\]\{\}\+\^\\\$\*\?\.])/ )  { |s| '\\' + s}
       end
         
-      @criteria.where(@field.name.to_s => /#{string_fragment}/i)
+      @criteria = @criteria.where(@field.name.to_s => /#{string_fragment}/i)
       return true
     end
 
@@ -114,8 +115,8 @@ module Wice
       end
       from = parse_number(opts[:fr])
       to = parse_number(opts[:to])
-      @criteria.where(@field.name.to_sym.gte => from)
-      @criteria.where(@field.name.to_sym.lte => to)
+      @criteria = @criteria.where(@field.name.to_sym.gte => from)
+      @criteria = @criteria.where(@field.name.to_sym.lte => to)
 
       return true
     end
@@ -139,8 +140,8 @@ module Wice
     @@handled_type[Time] = self
 
     def generate_conditions(opts)   #:nodoc:
-      @criteria.where(@field.name.to_sym.gte => opts[:fr]) if opts[:fr]
-      @criteria.where(@field.name.to_sym.lte => opts[:to]) if opts[:to]
+      @criteria = @criteria.where(@field.name.to_sym.gte => opts[:fr]) if opts[:fr]
+      @criteria = @criteria.where(@field.name.to_sym.lte => opts[:to]) if opts[:to]
       opts[:fr] || opts[:to]
     end
   end
