@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{wice_grid_mongoid}
-  s.version = "6.1.1"
+  s.version = "6.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Yuri Leikind", "Aleksandr Furmanov"]
