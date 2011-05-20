@@ -228,7 +228,7 @@ module Wice
         @criteria = @criteria.order_by(order_by)
       end
 
-      @criteria.limit(@status[:per_page].to_i)
+      @criteria = @criteria.limit(@status[:per_page].to_i)
 #       #fix-this, Criteria must respect options
 #       if self.output_html?
 #         @criteria[:per_page] = if all_record_mode?
