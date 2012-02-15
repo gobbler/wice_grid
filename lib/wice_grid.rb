@@ -26,7 +26,10 @@ module Wice
 
     initializer "wice_grid_railtie.configure_rails_initialization" do |app|
       ActionController::Base.send(:include, Wice::Controller)
-      Mongoid::Field.send(:include, ::Wice::MongoidField)
+      # Mongoid::Field.send(:include, ::Wice::MongoidField)
+      Mongoid::Fields.send(:include, ::Wice::MongoidField)
+      Mongoid::Fields::Serializable::Time.send(:include, ::Wice::MongoidField)
+      Mongoid::Fields::Serializable::Object.send(:include, ::Wice::MongoidField)
       ::ActionView::Base.class_eval { include Wice::GridViewHelper }
 
       [ActionView::Helpers::AssetTagHelper,
