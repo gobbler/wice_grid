@@ -127,9 +127,12 @@ module Wice
       match_data = VALID_NUMBER_RE.match(num_str)
       num = match_data[1].to_i
       num = case match_data[3].downcase
-            when 'g': num * 1024*1024*1024
-            when 'm': num * 1024*1024
-            when 'k': num * 1024
+            when 'g'
+              num * 1024*1024*1024
+            when 'm'
+              num * 1024*1024
+            when 'k'
+              num * 1024
             end if match_data[3]
       num
     end
