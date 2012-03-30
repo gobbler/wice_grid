@@ -1,8 +1,8 @@
 require File.join(File.dirname(__FILE__), '/spec_helper')
 
 describe UsersController do
-  include Capybara
-  
+  include Capybara::DSL
+
   context "3 users" do
     before(:each) do
       @aa = User.make(:first_name => 'aabbcc', :year => Time.parse('1980-01-01'), :archived => true)
