@@ -17,7 +17,7 @@ describe UsersController do
         grid.column :column_name => 'First Name', :attribute_name => 'first_name' 
       end
       visit '/users'
-      page.should have_selector('table tr')
+      page.should have_selector('table.wice_grid tr')
     end
 
     it "should be possible to sort it by clicking titles" do
@@ -39,10 +39,10 @@ describe UsersController do
       first_name_column = all('tbody td[1]').map(&:text)
       first_name_column.should == ["ccddee", "bbccdd", "aabbcc"]
     end
-    
+
     it "should be possible to see String filters and use them" do
       UsersController.columns do |grid|
-        grid.column :column_name => 'First Name', :attribute_name => 'first_name' 
+        grid.column :column_name => 'First Name', :attribute_name => 'first_name'
       end
       visit '/users'
       fill_in "grid[f][first_name]", :with => 'bb'
@@ -55,7 +55,7 @@ describe UsersController do
       UsersController.columns do |grid| 
         grid.column :column_name => 'DOB', :attribute_name => 'year'
       end
-      visit '/users?grid[f][year][fr]=1985-01-01&grid[f][year][to]=2005-01-01'
+      visit URI.escape('/users?grid[f][year][fr]=1985-01-01&grid[f][year][to]=2005-01-01')
       first_name_column = all('tbody td[1]').map(&:text)
       first_name_column.size.should == 2
     end
@@ -77,7 +77,7 @@ describe UsersController do
       first_name_column = all('tbody td[1]').map(&:text)
       first_name_column.size.should == 1
     end
-    
+
     it "should be possible to use K,M,G,KB,MB,GB in Integer filters" do
       UsersController.columns do |grid| 
         grid.column :column_name => 'Storage Limit', :attribute_name => 'storage_limit'
@@ -133,8 +133,5 @@ describe UsersController do
       first_name_column = all('tbody td[1]').map(&:text)
       first_name_column.map(&:to_i).sum.should == 2
     end
-    
+  end
 end
-  
-end  
-

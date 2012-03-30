@@ -1,6 +1,6 @@
 require "action_controller/railtie"
 require "active_resource/railtie"
-require 'wice_grid'
+require_relative '../lib/wice_grid'
 
 module Test
   class Application < Rails::Application
