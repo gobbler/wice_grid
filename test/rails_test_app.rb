@@ -65,8 +65,7 @@ end
 
 Test::Application.initialize!
 Test::Application.routes.draw do
-   resources :users
+  resources :users
 end
 
-require 'test/wice_grid_initializer'
-
+require_relative './wice_grid_initializer'
