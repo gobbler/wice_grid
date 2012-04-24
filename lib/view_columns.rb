@@ -196,7 +196,9 @@ module Wice
         opts2[:class] = ' auto_reload'
       end
 
-      text_field_tag(parameter_name,  params[:fr], opts1) + text_field_tag(parameter_name2, params[:to], opts2)
+      params_fetch = ->(key_name) { params.empty? ? '' : params[key_name] }
+
+      text_field_tag(parameter_name, params_fetch[:fr], opts1) + text_field_tag(parameter_name2, params_fetch[:to], opts2)
     end
 
     def yield_declaration_of_column_filter #:nodoc:

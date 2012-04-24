@@ -17,6 +17,4 @@ RSpec.configure do |rspec_config|
   end
 end
 
-require 'test/blueprint'
-  
-
+require_relative './blueprint'

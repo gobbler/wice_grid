@@ -1,4 +1,4 @@
-require 'filter_conditions_generators'
+require_relative 'filter_conditions_generators'
 
 module Wice
   # to be mixed in into Mongoid::Field

@@ -1,6 +1,6 @@
 require "action_controller/railtie"
 require "active_resource/railtie"
-require 'wice_grid'
+require_relative '../lib/wice_grid'
 
 module Test
   class Application < Rails::Application
@@ -65,8 +65,7 @@ end
 
 Test::Application.initialize!
 Test::Application.routes.draw do
-   resources :users
+  resources :users
 end
 
-require 'test/wice_grid_initializer'
-
+require_relative './wice_grid_initializer'

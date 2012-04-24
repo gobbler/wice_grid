@@ -1,35 +1,38 @@
 # encoding: UTF-8
-require 'wice_grid_misc.rb'
-require 'wice_grid_core_ext.rb'
-require 'grid_renderer.rb'
-require 'helpers/wice_grid_view_helpers.rb'
-require 'helpers/wice_grid_misc_view_helpers.rb'
-require 'helpers/wice_grid_serialized_queries_view_helpers.rb'
-require 'helpers/wice_grid_view_helpers.rb'
-require 'helpers/js_calendar_helpers.rb'
-require 'grid_output_buffer.rb'
-require 'wice_grid_controller.rb'
-require 'mongoid_field'
-require 'wice_grid_spreadsheet.rb'
-require 'wice_grid_serialized_queries_controller.rb'
-require 'js_adaptors/js_adaptor.rb'
-require 'js_adaptors/jquery_adaptor.rb'
-require 'js_adaptors/prototype_adaptor.rb'
-require 'view_columns.rb'
 
+require_relative 'wice_grid_misc'
+require_relative 'wice_grid_core_ext'
+require_relative 'grid_renderer'
+require_relative 'helpers/wice_grid_view_helpers'
+require_relative 'helpers/wice_grid_misc_view_helpers'
+require_relative 'helpers/wice_grid_serialized_queries_view_helpers'
+require_relative 'helpers/wice_grid_view_helpers'
+require_relative 'helpers/js_calendar_helpers'
+require_relative 'grid_output_buffer'
+require_relative 'wice_grid_controller'
+require_relative 'mongoid_field'
+require_relative 'wice_grid_spreadsheet'
+require_relative 'wice_grid_serialized_queries_controller'
+require_relative 'js_adaptors/js_adaptor'
+require_relative 'js_adaptors/jquery_adaptor'
+require_relative 'js_adaptors/prototype_adaptor'
+require_relative 'view_columns'
 
 ActionController::Base.send(:helper_method, :wice_grid_custom_filter_params)
 
 module Wice
-
   class WiceGridRailtie < Rails::Railtie
-
     initializer "wice_grid_railtie.configure_rails_initialization" do |app|
       ActionController::Base.send(:include, Wice::Controller)
       # Mongoid::Field.send(:include, ::Wice::MongoidField)
       Mongoid::Fields.send(:include, ::Wice::MongoidField)
       Mongoid::Fields::Serializable::Time.send(:include, ::Wice::MongoidField)
       Mongoid::Fields::Serializable::Object.send(:include, ::Wice::MongoidField)
+      Mongoid::Fields::Serializable::Date.send(:include, ::Wice::MongoidField)
+      Mongoid::Fields::Serializable::Integer.send(:include, ::Wice::MongoidField)
+      Mongoid::Fields::Serializable::Boolean.send(:include, ::Wice::MongoidField)
+      Mongoid::Fields::Serializable::String.send(:include, ::Wice::MongoidField)
+
       ::ActionView::Base.class_eval { include Wice::GridViewHelper }
 
       [ActionView::Helpers::AssetTagHelper,
