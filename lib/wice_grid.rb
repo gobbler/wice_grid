@@ -26,12 +26,20 @@ module Wice
       ActionController::Base.send(:include, Wice::Controller)
       # Mongoid::Field.send(:include, ::Wice::MongoidField)
       Mongoid::Fields.send(:include, ::Wice::MongoidField)
-      Mongoid::Fields::Serializable::Time.send(:include, ::Wice::MongoidField)
-      Mongoid::Fields::Serializable::Object.send(:include, ::Wice::MongoidField)
-      Mongoid::Fields::Serializable::Date.send(:include, ::Wice::MongoidField)
-      Mongoid::Fields::Serializable::Integer.send(:include, ::Wice::MongoidField)
-      Mongoid::Fields::Serializable::Boolean.send(:include, ::Wice::MongoidField)
-      Mongoid::Fields::Serializable::String.send(:include, ::Wice::MongoidField)
+
+    Mongoid::Fields::Internal::Time.send(:include, ::Wice::MongoidField)
+    Mongoid::Fields::Internal::Object.send(:include, ::Wice::MongoidField)
+    Mongoid::Fields::Internal::Date.send(:include, ::Wice::MongoidField)
+    Mongoid::Fields::Internal::Integer.send(:include, ::Wice::MongoidField)
+    Mongoid::Fields::Internal::Boolean.send(:include, ::Wice::MongoidField)
+    Mongoid::Fields::Internal::String.send(:include, ::Wice::MongoidField)
+
+     # Mongoid::Fields::Serializable::Time.send(:include, ::Wice::MongoidField)
+     # Mongoid::Fields::Serializable::Object.send(:include, ::Wice::MongoidField)
+     # Mongoid::Fields::Serializable::Date.send(:include, ::Wice::MongoidField)
+     # Mongoid::Fields::Serializable::Integer.send(:include, ::Wice::MongoidField)
+     # Mongoid::Fields::Serializable::Boolean.send(:include, ::Wice::MongoidField)
+     # Mongoid::Fields::Serializable::String.send(:include, ::Wice::MongoidField)
 
       ::ActionView::Base.class_eval { include Wice::GridViewHelper }
 
