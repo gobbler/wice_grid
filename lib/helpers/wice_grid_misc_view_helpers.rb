@@ -59,14 +59,16 @@ module Wice
     # By default +include_wice_grid_assets+ adds include statements for the javascript calendar widget used for date/datetime filters,
     # but it's possible not to include them setting parameter +include_calendar+ to false:
     #     <%= include_wice_grid_assets(:include_calendar => false) %>
-    def include_wice_grid_assets(options = {})
+    def include_wice_grid_assets(options = {}, assets_paths = {})
       opts = {:include_calendar => true, :load_on_demand => true}
       options.assert_valid_keys(opts.keys)
       opts.merge!(options)
 
       if @__wice_grid_on_page || ! opts[:load_on_demand]
-        javascript_include_tag('wice_grid') +
-        stylesheet_link_tag('wice_grid') +
+        js_path = assets_paths.fetch(:js_asset_path, 'wice_grid')
+        css_path = assets_paths.fetch(:css_asset_path, 'wice_grid')
+        javascript_include_tag(js_path) +
+        stylesheet_link_tag(css_path) +
         if opts[:include_calendar]
           JsAdaptor.js_framework_specific_calendar_assets(self)
         else
